@@ -48,6 +48,7 @@ Collect MAC, IP, PORT, DPID for every client
 - pri=0, action=out:CONTROLLER
 - [dl_dst => out:port, ...]
 - [dl_nonlocal_dst => AddPBB, set dl_type, set dl_dst, out:port, ...]
+
 ## CORE [2]
 - managed by CORE
 - pri=0, action=out:CONTROLLER
