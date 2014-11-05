@@ -1,2 +1,2 @@
 #!/bin/env python
-# Alex
+# Alex Valiushko
