@@ -36,3 +36,19 @@ Collect MAC, IP, PORT, DPID for every client
 ### Procative rules installation
  - On any paths_dict change
  - Install rules for every (src, dst)
+
+# Tables
+## INBOUND (DEFAULT) [0]
+ - pri=2, dl_type=PBB,dl_dst=dpid action=PopPBB,GOTO:1
+ - pri=1, dl_type=PBB action=GOTO:2
+ - pri=0, action=GOTO:1
+
+## LOCAL [1] (no PBB here)
+- managed by EDGE
+- pri=0, action=out:CONTROLLER
+- [dl_dst => out:port, ...]
+- [dl_nonlocal_dst => AddPBB, set dl_type, set dl_dst, out:port, ...]
+## CORE [2]
+- managed by CORE
+- pri=0, action=out:CONTROLLER
+- [dl_dst => out:port, ...]
