@@ -4,7 +4,9 @@
 $init = <<SCRIPT
   aptitude update
   aptitude install -y build-essential fakeroot debhelper autoconf automake libssl-dev graphviz \
-  python-all python-qt4 python-twisted-conch libtool git tmux vim python-pip python-paramiko
+  python-all python-qt4 python-twisted-conch libtool git tmux vim python-pip python-paramiko \
+  python-sphinx
+  pip install alabaster
 SCRIPT
 
 $ovs = <<SCRIPT
