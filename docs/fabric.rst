@@ -4,26 +4,34 @@ fabric package
 Submodules
 ----------
 
-fabric.helpers module
+fabric.app module
+-----------------
+
+.. automodule:: fabric.app
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+fabric.flows module
+-------------------
+
+.. automodule:: fabric.flows
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+fabric.network module
 ---------------------
 
-.. automodule:: fabric.helpers
+.. automodule:: fabric.network
     :members:
     :undoc-members:
     :show-inheritance:
 
-fabric.main module
-------------------
+fabric.packet module
+--------------------
 
-.. automodule:: fabric.main
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-fabric.topology module
-----------------------
-
-.. automodule:: fabric.topology
+.. automodule:: fabric.packet
     :members:
     :undoc-members:
     :show-inheritance:
