@@ -30,7 +30,7 @@ SCRIPT
 
 $ryu = <<SCRIPT
   aptitude install python-lxml python-pbr python-greenlet
-  pip install six==1.7.0 ryu
+  pip install six==1.7.0 networkx ryu
 SCRIPT
 
 $cleanup = <<SCRIPT

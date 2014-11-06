@@ -1,1 +1,1 @@
-from fabric.main import NetworkManager
+from fabric.app import NetworkManager
