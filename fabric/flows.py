@@ -31,10 +31,10 @@ def compose(actions=[], to_table=0):
 
     return inst
 
-def to_local():
+def action_to_local():
     pass
 
-def to_remote():
+def action_to_remote():
     pass
 
 def match_all():
@@ -46,5 +46,5 @@ def match_transit():
 def match_inbound(dpid):
     pass
 
-def decapsulate():
+def action_decapsulate():
     pass
