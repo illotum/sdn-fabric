@@ -44,20 +44,21 @@ class NetworkManager(app_manager.RyuApp):
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _handle_packet_in(self, ev):
-        """
+    
         def packet_in(ev):
-        p=pkt.parse(ev.msg.data)
-        if p["dl_type"]
-        
-        ....PASS
+            p=pkt.parse(ev.msg.data)
+            if p["dl_type"]
+            
+            ....PASS
         
         def reply_to_arp(dp):
-        pass
+            pass
+            
         def send_lldp(dp):
-        pass
+            pass
     
         Handle unknown flow seen on the switches
-        """
+        
         pass
 
 
