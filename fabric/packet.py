@@ -7,10 +7,20 @@ from ryu.lib.packet import ethernet
 from ryu.lib.packet import arp
 from ryu.lib.packet import lldp
 
-def create_lldp(dpid,port_no=DEFAULT_VALUE):
+def create_lldp(dpid, port_no=DEFAULT_VALUE):
     '''
-    Ryu.packet_lldp()
+    Creates an LLDP broadcast packet
+
+    :param dpid: 64bit switch id
+    :type dpid: int
+
+    :param port_no: port number
+    :type port_no: int
+
+    :returns: binary representation of LLDP packet
+    :rtype: `bytearray`
     '''
+
     pkt = packet.Packet()
     dst = 'FF:FF:FF:FF:FF:FF'
     ethertype = ether.ETH_TYPE_LLDP
@@ -28,12 +38,26 @@ def create_lldp(dpid,port_no=DEFAULT_VALUE):
     pkt.add_protocol(lldp_pkt)
     pkt.serialize()
     return pkt
-    
-    
+
 
 def create_arp( dl_src,dl_dst,nl_src,nl_dst):
     '''
-    => ARP()
+    Creates an ARP reply packet
+
+    :param dl_src: 48bit MAC address
+    :type dl_src: int
+
+    :param dl_dst: 48bit MAC address
+    :type dl_dst: int
+
+    :param nl_src: 32bit IP address
+    :type nl_src: int
+
+    :param nl_dst: 32bit IP address
+    :type nl_dst: int
+
+    :returns: binary representation of ARP packet
+    :rtype: `bytearray`
     '''
     pkt = packet.Packet()
     pkt.add_protocol(ethernet.ethernet(ethertype=pkt_eth.ethertype,
@@ -47,25 +71,53 @@ def create_arp( dl_src,dl_dst,nl_src,nl_dst):
     pkt.serialize()
     return pkt
 
+
 def parse_lldp(decr,data):
     '''
-    => (descr dictionary is built and descr is returned)
-    
+    Parses LLDP headers and adds them to provided dict
+
+    :param data: binary of a packet to parse
+    :type data: bitearray
+
+    :param headers: parsed headers
+    :type headers: dict
+
+    :returns: `headers` with additional entries
+              of "dpid" and "port_no" form LLDP
+    :rtype: dict
     '''
     pass
+
 
 def parse_arp(descr,data):
     '''
-    Same as parse_lldp
+    Parses ARP headers and adds them to provided dict
+
+    :param data: binary of a packet to parse
+    :type data: bitearray
+
+    :param headers: parsed headers
+    :type headers: dict
+
+    :returns: `headers` with additional entries of "opcode", "nl_src"
+              and "nl_dst" form ARP.
+              Entries from the Ethernet frame, "dl_src" and "dl_dst",
+              are NOT overwritten.
+    :rtype: dict
     '''
     pass
 
+
 def parse(data):
     '''
-    {"dl_type:","dl_src":}
-    eth.header=()
-    if parse.arp()
-    elif parse_lldp()
-    call parse_arp()
+    Parses Ethernet headers and calls for additional parsing
+    in case of ARP and LLDP.
+
+    :param data: binary of a packet to parse
+    :type data: bitearray
+
+    :returns: dictionary of all important headers parsed
+              with "dl_src" and "dl_dst" at minimum.
+    :rtype: dict
     '''
     pass
