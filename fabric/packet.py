@@ -25,7 +25,6 @@ def create_lldp(dpid,port_no=DEFAULT_VALUE):
     tlv_end = lldp.End()
     tlvs = (tlv_chassis_id, tlv_port_id, tlv_ttl, tlv_end)
     lldp_pkt = lldp.lldp(tlvs)
-    lldp_pkt = lldp.lldp(tlvs)
     pkt.add_protocol(lldp_pkt)
     pkt.serialize()
     
@@ -44,6 +43,7 @@ def create_arp( dl_src,dl_dst,nl_src,nl_dst):
                                      src_ip= pkt_arp.nl_src,
                                      dst_mac=pkt_arp.dl_dst,
                                      dst_ip=pkt_arp.n1_dst))
+    pkt.serialize()
 
 
 def parse_lldp(decr,data):
