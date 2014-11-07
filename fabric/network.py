@@ -17,6 +17,11 @@ class Network(object):
     def parse_ports(ports):
     self._topo[(dpid,port_no)=(P_LEARNING,None)]
     pass
+    def new_peer():
+        pass
+    def get_path(src_dpid,dst_dpid):
+    #Gets the list of all the paths between core links
+    pass
     """
     pass
 
@@ -27,6 +32,12 @@ class Topology(dict):
     P_LEARNING=0
     
     Topology graph with network related helpers
+     def spf():
+    => Returns nothing.
+    It stores a table of self_paths-> {(src,dst)=>[(dpid,port_no),(),()]
+    def get_all_core():
+    #Gets all core switches
+    pass
     """
 class LinkState(object):
     '''
@@ -38,14 +49,8 @@ class LinkState(object):
         # To check for uniqueness only between RID and port No but not port status
     def __eq__(self,other):
         return self.dpid==other.dpid and self.port_no==other.port_no
-    def get_all_core():
-    #Gets all core switches
-    pass
-    def get_path(src_dpid,dst_dpid):
-    #Gets the list of all the paths between core links
-    pass
-    def spf():
-    => Returns nothing.
-    It stores a table of self_paths-> {(src,dst)=>[(dpid,port_no),(),()]
+   
+   
+   
     '''
     pass
