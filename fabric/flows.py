@@ -5,6 +5,9 @@ creating flow table entries.
 
 from ryu.ofproto import ofproto_v1_3 as ofp
 from ryu.ofproto import ofproto_v1_3_parser as parser
+DEF_TABLE = 0
+TRANSIT_TABLE = 1
+EDGE_TABLE = 2
 
 def compose(actions=[], to_table=0):
     """
