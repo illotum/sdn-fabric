@@ -37,5 +37,14 @@ def to_local():
 def to_remote():
     pass
 
+def match_all():
+    pass
+
+def match_transit():
+    pass
+
+def match_inbound(dpid):
+    pass
+
 def decapsulate():
     pass
