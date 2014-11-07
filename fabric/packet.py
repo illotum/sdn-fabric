@@ -65,9 +65,9 @@ def create_arp( dl_src,dl_dst,nl_src,nl_dst):
                                                src=dl_src))
     pkt.add_protocol(arp.arp(opcode=arp.ARP_REPLY,
                                      src_mac=dl_src,
-                                     src_ip= pkt_arp.nl_src,
-                                     dst_mac=pkt_arp.dl_dst,
-                                     dst_ip=pkt_arp.n1_dst))
+                                     src_ip=nl_src,
+                                     dst_mac=dl_dst,
+                                     dst_ip=n1_dst))
     pkt.serialize()
     return pkt
 
