@@ -51,6 +51,6 @@ class LinkState(object):
         return self.dpid==other.dpid and self.port_no==other.port_no
    
    
-   
+        pass
     '''
-    pass
+    
