@@ -22,6 +22,11 @@ HIGH_PRI = 2
 class NetworkManager(app_manager.RyuApp):
     """
     Core class of this package, NetworkManager is a top-level Ryu application
+    def features.reply():
+        pass
+    def port_status():
+        pass
+    
     """
 
     OFP_VERSIONS = [ofp.OFP_VERSION]
@@ -40,6 +45,17 @@ class NetworkManager(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _handle_packet_in(self, ev):
         """
+        def packet_in(ev):
+        p=pkt.parse(ev.msg.data)
+        if p["dl_type"]
+        
+        ....PASS
+        
+        def reply_to_arp(dp):
+        pass
+        def send_lldp(dp):
+        pass
+    
         Handle unknown flow seen on the switches
         """
         pass
