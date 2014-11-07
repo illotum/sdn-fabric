@@ -52,7 +52,7 @@ def to_local():
     pass
 def match_all():
     '''
-    =>Match
+    =>Match + ACTIONS
     3.
     '''
     pass
@@ -71,5 +71,8 @@ def match_inbound(dpid):
     1.
     '''
     pass
-
+#Used for creating  a packet out message
+def send_out_packet(pkt,out_port):
+    #SEND PACKET OUT
+    pass
 
