@@ -1,1 +1,4 @@
-from fabric.app import NetworkManager
+from fabric.app import SimpleSwitch
+
+class Controller(SimpleSwitch):
+    pass
