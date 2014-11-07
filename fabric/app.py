@@ -22,12 +22,15 @@ HIGH_PRI = 2
 class NetworkManager(app_manager.RyuApp):
     """
     Core class of this package, NetworkManager is a top-level Ryu application
+    """
+    
     def features.reply():
         pass
+    
     def port_status():
         pass
     
-    """
+    
 
     OFP_VERSIONS = [ofp.OFP_VERSION]
 
