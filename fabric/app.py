@@ -17,9 +17,6 @@ IDLE_TIMEOUT = 10  #: Timeout for dynamic flows
 DEF_PRI = 0
 LOW_PRI = 1
 HIGH_PRI = 2
-DEF_TABLE = 0
-TRANSIT_TABLE = 1
-EDGE_TABLE = 2
 
 
 class NetworkManager(app_manager.RyuApp):
