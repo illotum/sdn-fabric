@@ -37,6 +37,9 @@ def action_to_local():
 def action_to_remote():
     pass
 
+def action_decapsulate():
+    pass
+
 def match_all():
     pass
 
@@ -46,5 +49,4 @@ def match_transit():
 def match_inbound(dpid):
     pass
 
-def action_decapsulate():
-    pass
+
