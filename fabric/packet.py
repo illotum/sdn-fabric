@@ -11,7 +11,25 @@ def create_lldp(dpid,port_no=DEFAULT_VALUE):
     '''
     Ryu.packet_lldp()
     '''
-    pass
+    pkt = packet.Packet()
+    dst = ""
+    ethertype = ether.ETH_TYPE_LLDP
+    eth_pkt = ethernet.ethernet(dst, dpid, ethertype)
+    pkt.add_protocol(eth_pkt)
+    tlv_chassis_id = lldp.ChassisID(subtype=lldp.ChassisID.SUB_MAC_ADDRESS,
+                                    chassis_id=haddr_to_bin(dpid))
+
+    tlv_port_id = lldp.PortID(subtype=lldp.PortID.SUB_INTERFACE_NAME,
+                              port_id=str(port_no))
+    tlv_ttl = lldp.TTL(ttl=2)
+    tlv_end = lldp.End()
+    tlvs = (tlv_chassis_id, tlv_port_id, tlv_ttl, tlv_end)
+    lldp_pkt = lldp.lldp(tlvs)
+    lldp_pkt = lldp.lldp(tlvs)
+    pkt.add_protocol(lldp_pkt)
+    pkt.serialize()
+    
+    
 
 def create_arp( dl_src,dl_dst,nl_src,nl_dst):
     '''
