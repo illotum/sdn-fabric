@@ -7,7 +7,8 @@ from ryu.ofproto import ofproto_v1_3 as ofp
 from ryu.ofproto import ofproto_v1_3_parser as parser
 DEF_TABLE = 0
 TRANSIT_TABLE = 1
-EDGE_TABLE = 2
+LOCAL_TABLE = 2
+
 
 def compose(actions=[], to_table=0):
     """
@@ -17,7 +18,7 @@ def compose(actions=[], to_table=0):
     :type actions: list of `parser.OFPAction`
 
     :param to_table: table to switch to after applying all actions;
-                    value 0 (default table) will be ignored
+                     value 0 (default table) will be ignored
     :type to_table: int
 
     :returns: instructions for `parser.OFPFlowMod`
@@ -28,35 +29,78 @@ def compose(actions=[], to_table=0):
     if actions:
         inst.append(
             parser.OFPInstructionActions(ofp.OFPIT_APPLY_ACTIONS,
-                                        actions))
+                                         actions))
     if to_table:
         inst.append(parser.OFPInstructionGoto(to_table))
 
     return inst
 
+
 def dpid_to_mac(dpid):
+    """
+    Cuts only lowest 48 bits of an integer
+
+    :param dpid: 64bits of switch id
+    :type dpid: int
+
+    :returns: 48bits of MAC address
+    :rtype: int
+    """
     pass
 
-def flow_to_port(dl_dst,out_port,tableno=DEFAULT_TABLE_SOMETHING):
+
+def flow_to_port(dp, dl_dst, out_port, table=LOCAL_TABLE):
     '''
-    =>parser.OFPFlowMod
+    Creates a FlowMod structure that matches destination MAC and
+    send packet out of a port.
+
+    By default is used for local switching, but table may be set to
+    `fabric.flow.TRANSIT_TABLE` for transit rules.
+
+    :param dp: switch description
+    :type dp: `ryu.controller.controller.Datapath`
+
+    :param dl_dst: destination MAC address
+    :type dl_dst: int
+
+    :param out_port: output port
+    :type out_port: int
+
+    :returns: FlowMod to send to the switch
+    :rtype: `parser.OFPFlowMod`
     '''
     pass
 
-def flow_to_remote(dl_dst,dpid):
+
+def flow_to_remote(dp, dl_dst, dpid):
+    '''
+    Creates a FlowMod structure that matches destination MAC and
+    encapsulates frame in PBB before switching to a TRANSIT table.
+
+    :param dp: switch description
+    :type dp: `ryu.controller.controller.Datapath`
+
+    :param dl_dst: original destination MAC address
+    :type dl_dst: int
+
+    :param dpid: destination switch id to be set as dl_dst after encapsulation
+    :type out_port: int
+
+    :returns: FlowMod to send to the switch
+    :rtype: `parser.OFPFlowMod`
+    '''
     pass
 
-def to_local():
-    '''
-    returns to_port(,,LOCAL---can be anything)
-    '''
-    pass
+
 def match_all():
     '''
-    =>Match + ACTIONS
-    3.
+    Produces an empty match structure.
+
+    :returns: match all
+    :rtype: `parser.OFPMatch`
     '''
     pass
+
 
 def flow_install_transit():
     '''
@@ -66,14 +110,33 @@ def flow_install_transit():
     pass
 
 
-def match_inbound(dpid):
+def flow_inbound(dp):
     '''
-    => FLOWMOD
-    1.
+    Produces a FlowMod that will match PBB encapsulated flows
+    destined to this switch and decapsulates them before switching
+    to LOCAL table
+
+    :param dp: datapath description
+    :type dp: `ryu.controller.controller.Datapath`
+
+    :returns: flow mod message
+    :rtype: `parser.OFPFlowMod`
     '''
-    pass
-#Used for creating  a packet out message
-def send_out_packet(pkt,out_port):
-    #SEND PACKET OUT
     pass
 
+
+def send_out_packet(dp, pkt, out_port):
+    """
+    Produces a message for a switch to send the provided
+    packet out.
+
+    :param dp: datapath description
+    :type dp: `ryu.controller.controller.Datapath`
+
+    :param pkt: packet contents in serialized format
+    :type pkt: `bytearray`
+
+    :returns: packet out message
+    :rtype: `parser.OFPPacketOut`
+    """
+    pass
