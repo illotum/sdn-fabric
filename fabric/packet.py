@@ -19,9 +19,6 @@ def create_arp( dl_src,dl_dst,nl_src,nl_dst):
     '''
     pass
 
-def parse_eth(data):
-    pass
-
 def parse_lldp(decr,data):
     '''
     => (descr dictionary is built and descr is returned)
