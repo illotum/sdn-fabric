@@ -12,7 +12,7 @@ def create_lldp(dpid,port_no=DEFAULT_VALUE):
     Ryu.packet_lldp()
     '''
     pkt = packet.Packet()
-    dst = ""
+    dst = 'FF:FF:FF:FF:FF:FF'
     ethertype = ether.ETH_TYPE_LLDP
     eth_pkt = ethernet.ethernet(dst, dpid, ethertype)
     pkt.add_protocol(eth_pkt)
