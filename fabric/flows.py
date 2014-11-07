@@ -31,22 +31,42 @@ def compose(actions=[], to_table=0):
 
     return inst
 
-def action_to_local():
+def dpid_to_mac(dpid):
+    pass
+def flow_to_port(dl_dst,out_port,tableno=DEFAULT_TABLE_SOMETHING):
+    '''
+    =>parser.OFPFlowMod
+    '''
     pass
 
-def action_to_remote():
+def flow_to_remote(dl_dst,dpid):
     pass
 
-def action_decapsulate():
+def to_local():
+    '''
+    returns to_port(,,LOCAL---can be anything)
+    '''
     pass
-
 def match_all():
+    '''
+    =>Match
+    3.
+    '''
     pass
 
-def match_transit():
+def flow_install_transit():
+    '''
+    => FlowMod
+    2.
+    '''
     pass
+
 
 def match_inbound(dpid):
+    '''
+    => FLOWMOD
+    1.
+    '''
     pass
 
 
