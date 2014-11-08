@@ -72,7 +72,7 @@ def create_arp( dl_src,dl_dst,nl_src,nl_dst):
     return pkt
 
 
-def parse_lldp(decr,data):
+def parse_lldp(descr,data):
     '''
     Parses LLDP headers and adds them to provided dict
 
@@ -86,7 +86,15 @@ def parse_lldp(decr,data):
               of "dpid" and "port_no" form LLDP
     :rtype: dict
     '''
-    pass
+    
+    pkt = packet.Packet(data)
+    pkt_lldp = pkt.get_protocol(lldp.lldp)
+    s = str(pkt_lldp.tlvs[0].chassis_id)
+    dpid_dst = struct.unpack("!Q",'\x00\x00' + s)[0]
+    
+    descr["dpid_dst"] = dpid_dst
+    
+    return descr
 
 
 def parse_arp(descr,data):
@@ -105,10 +113,17 @@ def parse_arp(descr,data):
               are NOT overwritten.
     :rtype: dict
     '''
-    pass
+    pkt = packet.Packet(data)
+    pkt_arp = pkt.get_protocol(arp.arp)
+    
+    descr["nl_src"] = pkt_arp.src_ip
+    descr["nl_dst"] = pkt_arp.dst_ip
+    descr["opcode"] = pkt_arp.opcode
+    
+    return descr
 
 
-def parse(data):
+def parse(data, dpid_src, port_src):
     '''
     Parses Ethernet headers and calls for additional parsing
     in case of ARP and LLDP.
@@ -120,4 +135,15 @@ def parse(data):
               with "dl_src" and "dl_dst" at minimum.
     :rtype: dict
     '''
-    pass
+    descr = { "dpid_src" : '', "port_src" : '', "dl_src" : '', "dl_dst" : '' , "nl_src" : '', "nl_dst" : '' , "dpid_dst" : '' , "opcode" : ''}
+    descr["dpid_src"] = dpid_src
+    descr["port_src"] = port_src
+    
+    pkt = packet.Packet(data)
+    pkt_eth = pkt.get_protocol(ethernet.ethernet)
+    
+    desrc["dl_src"] = pkt_eth.src
+    descr["dl_dst"] = pkt_eth.dst
+    
+    return descr
+   
