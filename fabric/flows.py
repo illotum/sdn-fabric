@@ -94,7 +94,7 @@ def flow_to_remote(dp, dl_dst, dpid):
 
 #@set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER) should be used in app.py before calling match_all()
 
-def match_all(self,ev):
+def match_all():
 
     '''
 
@@ -105,7 +105,7 @@ def match_all(self,ev):
     Lowest Priority of 0 should be set for this match.
     It should be called as soon as a switch connects to a controller.
     
-    Input: self, event 
+    Input: None
     Output: IT returns a parser.OFPMatch type
 
 
@@ -113,10 +113,7 @@ def match_all(self,ev):
     @ Tarun Gumma
 
     '''
-    datapath = ev.msg.datapath
-
-    ofproto = datapath.ofproto
-    parser = datapath.ofproto_parser
+   
     match = parser.OFPMatch()
 
     #actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
