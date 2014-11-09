@@ -92,14 +92,37 @@ def flow_to_remote(dp, dl_dst, dpid):
     pass
 
 
-def match_all():
-    '''
-    Produces an empty match structure.
+#@set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER) should be used in app.py before calling match_all()
 
-    :returns: match all
-    :rtype: `parser.OFPMatch`
+def match_all():
+
     '''
-    pass
+
+    An empty match is done or in other words, as soon as the
+
+    switch connects to the controller, it is instructed to match every packet.
+
+    Lowest Priority of 0 should be set for this match.
+
+    IT returns a parser.OFPMatch type
+
+    It should be called as soon as a switch connects to a controller.
+
+
+
+    @ Tarun Gumma
+
+    '''
+
+    match = parser.OFPMatch()
+
+    #actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
+
+                                      ofproto.OFPCML_NO_BUFFER)]
+
+  	
+
+  	return match
 
 
 def flow_install_transit():
