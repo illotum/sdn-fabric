@@ -118,7 +118,7 @@ def match_all():
 
     #actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
 
-                                      ofproto.OFPCML_NO_BUFFER)]
+                                     # ofproto.OFPCML_NO_BUFFER)]
 
   	
 
