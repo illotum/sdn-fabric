@@ -70,7 +70,26 @@ def flow_to_port(dp, dl_dst, out_port, table=LOCAL_TABLE):
     :returns: FlowMod to send to the switch
     :rtype: `parser.OFPFlowMod`
     '''
-    pass
+    
+    actions = [parser.OFPActionOutput(out_port)]
+    ofp = datapath.ofproto
+    parser = datapath.ofproto_parser
+    inst = [dp.OFPInstructionActions(ofp.OFPIT_APPLY_ACTION,actions)]
+    
+    if table is LOCAL_TABLE:
+        mod = parser.OFPFlowMod(datapath = dp, 
+                                priority =5, 
+                                match = parser.OFPmatch(eth_dst=dl_dst), 
+                                instruction=inst, 
+                                table_id=1 )
+    else:
+        mod = parser.OFPFlowMod(datapath = dp , 
+                                priority =5, 
+                                match = parser.OFPmatch(eth_dst=dl_dst), 
+                                instruction=inst, 
+                                table_id=2 )
+    
+    dp.send_msg(mod)
 
 
 def flow_to_remote(dp, dl_dst, dpid):
