@@ -77,7 +77,7 @@ class NetworkManager(app_manager.RyuApp):
            return
         pkt_lldp=pkt.get_protocol(lldp.lldp)
         if pkt_lldp:
-           self._handle_lldp(datapath,port,pkt_ethernet,pkt_lldp)
+           self._handle_lldp(datapath,in_port,pkt_ethernet,pkt_lldp)
            return
 
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)
