@@ -66,6 +66,19 @@ class NetworkManager(app_manager.RyuApp):
                    headers.
         :type ev: `ofp_event.EventOFPPacketIn`
         """
+        msg=ev.msg
+        pkt=packet.Packet(msg.data)
+        datapath=msg.datapath
+        in_port=msg.match['in-port']
+        pkt_ethernet=pkt.get_protocol(ethernet.ethernet)
+        pkt_arp=pkt.get_protocol(arp.arp)
+        if pkt_arp:
+           self._handle_arp(datapath,port,pkt_ethernet,pkt_arp)
+           return
+        pkt_lldp=pkt.get_protocol(lldp.lldp)
+        if pkt_lldp:
+           self._handle_lldp(datapath,port,pkt_ethernet,pkt_lldp)
+           return
 
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)
     def _handle_port_status(self, ev):
