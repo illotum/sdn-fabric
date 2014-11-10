@@ -10,7 +10,7 @@ from ryu.ofproto import ofproto_v1_3 as ofp
 from ryu.ofproto import ofproto_v1_3_parser as parser
 
 from fabric.network import Network
-import fabric.packet as pkt
+import fabric.packet as pack
 import fabric.flows as fl
 
 IDLE_TIMEOUT = 10  #: Timeout for dynamic flows
@@ -70,14 +70,15 @@ class NetworkManager(app_manager.RyuApp):
         pkt=packet.Packet(msg.data)
         datapath=msg.datapath
         in_port=msg.match['in-port']
-        pkt_ethernet=pkt.get_protocol(ethernet.ethernet)
+        descr=pack.parse(msg.data,datapath,in_port)
+        
         pkt_arp=pkt.get_protocol(arp.arp)
         if pkt_arp:
-           self._handle_arp(datapath,port,pkt_ethernet,pkt_arp)
+           pack.parse_arp(descr,msg.data)
            return
         pkt_lldp=pkt.get_protocol(lldp.lldp)
         if pkt_lldp:
-           self._handle_lldp(datapath,in_port,pkt_ethernet,pkt_lldp)
+           pack.parse_lldp(descr,msg.data)
            return
 
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)
