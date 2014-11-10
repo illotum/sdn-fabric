@@ -46,7 +46,8 @@ def dpid_to_mac(dpid):
     :returns: 48bits of MAC address
     :rtype: int
     """
-    pass
+    mac_addr = dpid&(2**48-1)
+    return mac_addr
 
 
 def flow_to_port(dp, dl_dst, out_port, table=LOCAL_TABLE):
