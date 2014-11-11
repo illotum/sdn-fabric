@@ -31,7 +31,7 @@ def compose(actions=[], to_table=0):
             parser.OFPInstructionActions(ofp.OFPIT_APPLY_ACTIONS,
                                          actions))
     if to_table:
-        inst.append(parser.OFPInstructionGoto(to_table))
+        inst.append(parser.OFPInstructionGotoTable(to_table))
 
     return inst
 
