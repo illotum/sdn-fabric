@@ -146,7 +146,7 @@ def flow_install_transit(dp):
     mod = parser.OFPFlowMod(    datapath = dp,
                                 priority =1, 
                                 match = parser.OFPmatch(eth_type==0x88E7), 
-                                instruction=parser.OFPInstructionGotoTable(2))
+                                instruction = compose(0,2))
     
     dp.send_msg(mod)
 
