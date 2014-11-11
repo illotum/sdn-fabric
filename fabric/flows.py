@@ -141,13 +141,12 @@ def match_all(self,ev):
 
 def flow_install_transit(dp):
     '''
-    => FlowMod
-    2.
+    Creates a FlowMod structure that matches PBB packets and switches them to a CORE table.
     '''
     mod = parser.OFPFlowMod(    datapath = dp,
                                 priority =1, 
                                 match = parser.OFPmatch(eth_type==0x88E7), 
-                                instruction=compose([],2))
+                                instruction=parser.OFPInstructionGotoTable(2))
     
     dp.send_msg(mod)
 
