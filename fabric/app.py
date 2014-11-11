@@ -117,5 +117,13 @@ class NetworkManager(app_manager.RyuApp):
 
         :param dp: datapath object that corresponds to originating switch
         :type dp: `ryu.controller.controller.Datapath`
+        
+        @Tarun Gumma
         """
-        pass
+    def send_lldp(dp):
+
+    	lldp_pkt=pack.create_lldp(dp)
+    
+    	msg=fl.send_out_packet(dp,lldp_pkt,ofp.OFPP_FLOOD)
+    
+    	dp.send_msg(msg)
