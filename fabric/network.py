@@ -10,27 +10,37 @@ class Network(object):
     """
     Container for all network state
     """
-    
+
     def __init__():
-        self.topo=Topology()
+        self.topo=TopologyDB()
         self.ip_to_mac={}
-        self.mac_to_port={for every MAC address=>{dpid,port_no}
+        self.mac_to_port= {} #for every MAC address=>{dpid,port_no}
         #Used to Update ports as given when a port event status changes
-    
+
+    def mac_of(self, ip):
+        """
+        Returns mac of a given ip
+
+        :param ip: 32b IP for a lookup
+        :type ip: int
+
+        :returns: 48b MAC
+        :rtype: int
+        """
+        return self.ip_to_mac[ip]
     def parse_ports(ports):
-        self._topo[(dpid,port_no)=(P_LEARNING,None)]
+        self.topo[(dpid,port_no)]=(self._topo.P_LEARNING,None)
         pass
 
     def new_peer():
         pass
-    
+
     def get_path(src_dpid,dst_dpid):
     #Gets the list of all the paths between core links
         pass
-    
 
 
-class Topology(dict):
+class TopologyDB(dict):
 
     P_EDGE=1
     P_CORE=2
@@ -39,26 +49,16 @@ class Topology(dict):
     Topology graph with network related helpers
     """
     def spf():
-         => Returns nothing.
-         It stores a table of self_paths-> {(src,dst)=>[(dpid,port_no),(),()]
-    
-    def get_all_core():
-        #Gets all core switches
-        pass
-    
-class LinkState(object):
-    """
-    LSDB STRUCTURE COULD BE:
-    """
-    Dictionary[Dpid,P_no]=>Port State[None by default
-                                    (dpid,port_no2):(type,data)]
-    
-    def __init__(self,dpid,port_no):
-        self.paths={}
-        # To check for uniqueness only between RID and port No but not port status
-        
-    def __eq__(self,other):
-        return self.dpid==other.dpid and self.port_no==other.port_no
-        pass
-    
-    
+        '''
+        Returns nothing
+        It stores a table of self_paths-> {(src,dst)=>[(dpid,port_no),(),()]}
+        '''
+
+    def _get_all_core(self):
+        """
+        Returns all links in P_CORE state
+
+        :returns: list of links
+        :rtype: list of (dpid, port_no)
+        """
+        return [k for k,v in self.items() if v[0] == self.P_CORE]

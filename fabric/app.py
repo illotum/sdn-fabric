@@ -31,21 +31,22 @@ class NetworkManager(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def _handle_switch_features(self, ev):
         """
-        Handle new switches connecting to the network.
+        Handle new switches connecting to the network, their ports
+        and initiates a round of LLDP discovery.
 
         Feeds all port statuses to `self.net` and sends out LLDP discovery.
 
         TODO: Investigate if it is needed. Possibly better to handle
         switch state in `self._handle_state_change` and port state
         in `self._handle_port_status`.
+
         """
         pass
 
-    @set_ev_cls(ofp_event.EventOFPStateChange,
-                [MAIN_DISPATCHER, DEAD_DISPATCHER])
+    @set_ev_cls(ofp_event.EventOFPStateChange, [DEAD_DISPATCHER])
     def _handle_state_change(self, ev):
         """
-        Handle switch status change and initiates a round of LLDP discovery.
+        Handle switch going down and performs a topology update.
 
         Unlike OFPSwitchFeatures, this event doesn't carry ports state,
         but is fired also on switch going down.
@@ -71,7 +72,7 @@ class NetworkManager(app_manager.RyuApp):
         datapath=msg.datapath
         in_port=msg.match['in-port']
         descr=pack.parse(msg.data,datapath,in_port)
-        
+
         pkt_arp=pkt.get_protocol(arp.arp)
         if pkt_arp:
            pack.parse_arp(descr,msg.data)
@@ -90,6 +91,7 @@ class NetworkManager(app_manager.RyuApp):
         :param ev: port description and reason for state change
         :type ev: `ofp_event.EventOFPPortStatus`
         """
+        pass
 
     def reply_to_arp(dp, pkt):
         """
@@ -102,14 +104,14 @@ class NetworkManager(app_manager.RyuApp):
         :type pkt: dict
         """
         dl_dst, nl_dst, nl_src = pkt["dl_src"], pkt["nl_src"],pkt["nl_dst"]
-        dl_src = self.ip_to_mac[nl_src]  # still unsure about existance of ip_mac dict.
+        dl_src = self.net.mac_of[nl_src]
         out_port = dp.ofproto.OFPP_LOCAL
 
         pkt = create_arp( dl_src,dl_dst,nl_src,nl_dst)
-        
+
         send_out_packet(dp,pkt,out_port)
-        
-    
+
+
 
     def send_lldp(dp):
         """
@@ -117,7 +119,7 @@ class NetworkManager(app_manager.RyuApp):
 
         :param dp: datapath object that corresponds to originating switch
         :type dp: `ryu.controller.controller.Datapath`
-        
+
         @Tarun Gumma
         """
 

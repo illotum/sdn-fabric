@@ -70,25 +70,25 @@ def flow_to_port(dp, dl_dst, out_port, table=LOCAL_TABLE):
     :returns: FlowMod to send to the switch
     :rtype: `parser.OFPFlowMod`
     '''
-    
+
     actions = [parser.OFPActionOutput(out_port)]
     ofp = datapath.ofproto #NOT REQUIRED AS WE DEFINED THE PROTOCOL FOR THE SWITCHES AS REQUIREMENT WHEN IT CONNECTES TO THE CONTROLLER
     parser = datapath.ofproto_parser
     inst = [dp.OFPInstructionActions(ofp.OFPIT_APPLY_ACTION,actions)] #WE HAVE A COMPOSE FUNCTION TO COMPOSE THE INSTRUCTIONS
-    
+
     if table is LOCAL_TABLE:
-        mod = parser.OFPFlowMod(datapath = dp, 
-                                priority =5, 
-                                match = parser.OFPmatch(eth_dst=dl_dst), 
-                                instruction=inst, 
+        mod = parser.OFPFlowMod(datapath = dp,
+                                priority =5,
+                                match = parser.OFPmatch(eth_dst=dl_dst),
+                                instruction=inst,
                                 table_id=1 )
     else:
-        mod = parser.OFPFlowMod(datapath = dp , 
-                                priority =5, 
-                                match = parser.OFPmatch(eth_dst=dl_dst), 
-                                instruction=inst, 
+        mod = parser.OFPFlowMod(datapath = dp ,
+                                priority =5,
+                                match = parser.OFPmatch(eth_dst=dl_dst),
+                                instruction=inst,
                                 table_id=2 )
-    
+
     dp.send_msg(mod)
 
 
@@ -121,8 +121,8 @@ def match_all(self,ev):
 
     Lowest Priority of 0 should be set for this match.
     It should be called as soon as a switch connects to a controller.
-    
-    Input: self, event 
+
+    Input: self, event
     Output: IT returns a parser.OFPMatch type
 
 
@@ -130,7 +130,7 @@ def match_all(self,ev):
     @ Tarun Gumma
 
     '''
-    
+
     match = parser.OFPMatch()
 
     #actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
@@ -144,10 +144,10 @@ def flow_install_transit(dp):
     Creates a FlowMod structure that matches PBB packets and switches them to a CORE table.
     '''
     mod = parser.OFPFlowMod(    datapath = dp,
-                                priority =1, 
-                                match = parser.OFPmatch(eth_type==0x88E7), 
-                                instruction = compose(0,2))
-    
+                                priority =1,
+                                match = parser.OFPmatch(eth_type==0x88E7),
+                                instruction = compose(to_table=CORE_TABLE))
+
     dp.send_msg(mod)
 
 
@@ -183,8 +183,8 @@ def send_out_packet(dp, pkt, out_port):
 def send_out_packet(dp,pkt,out_port):
 
     actions = [parser.OFPActionOutput(out_port)]
-    
+
     msg= dp.ofproto_parser.OFPPacketOut(datapath=dp, buffer_id=ofp.OFP_NO_BUFFER, in_port=msg.in_port,actions=actions,data=pkt)
     return msg
-    
+
 
