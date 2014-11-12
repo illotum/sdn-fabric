@@ -3,8 +3,8 @@ This module containes pure functions to help with
 creating flow table entries.
 """
 
-from ryu.ofproto import ofproto_v1_3 as ofp
-from ryu.ofproto import ofproto_v1_3_parser as parser
+from ryu.ofproto import ofproto_v1_4 as ofp
+from ryu.ofproto import ofproto_v1_4_parser as parser
 DEF_TABLE = 0
 TRANSIT_TABLE = 1
 LOCAL_TABLE = 2
