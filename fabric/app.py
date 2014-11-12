@@ -70,13 +70,21 @@ class NetworkManager(app_manager.RyuApp):
         msg=ev.msg
         pkt=packet.Packet(msg.data)
         datapath=msg.datapath
-        in_port=msg.match['in-port']
-        descr=pack.parse(msg.data,datapath,in_port)
-
+        in_port=msg.in_port
+        descr=pack.parse(msg.data,datapath.id,in_port)
+        
         pkt_arp=pkt.get_protocol(arp.arp)
         if pkt_arp:
-           pack.parse_arp(descr,msg.data)
-           return
+            descr=pack.parse_arp(descr,msg.data)
+	        key=descr["nl_dst"]
+	        if key in self.net.ip_to_mac:
+		
+		        dl_dst=self.net.ip_to_mac[key]
+		        arp_dict={"nl_src":descr["nl_src"],"nl_dst":descr["nl_dst"],"dl_src":descr["dl_src"],"dl_dst":dl_dst}
+		        self.reply_to_arp(datapath.id,arp_dict)
+		        return
+
+        
         pkt_lldp=pkt.get_protocol(lldp.lldp)
         if pkt_lldp:
            pack.parse_lldp(descr,msg.data)
