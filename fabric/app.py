@@ -120,7 +120,7 @@ class NetworkManager(app_manager.RyuApp):
         :param dp: datapath object that corresponds to originating switch
         :type dp: `ryu.controller.controller.Datapath`
 
-        @Tarun Gumma
+        
         """
 
     	lldp_pkt=pack.create_lldp(dp)
