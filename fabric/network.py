@@ -17,7 +17,7 @@ class Network(object):
         self.mac_to_port= {} #for every MAC address=>{dpid,port_no}
         #Used to Update ports as given when a port event status changes
 
-    def mac_of(self, ip):
+    def mac_of_ip(self, ip):
         """
         Returns mac of a given ip
 
@@ -28,6 +28,21 @@ class Network(object):
         :rtype: int
         """
         return self.ip_to_mac[ip]
+        
+    def port_of_mac(self,mac):
+        """
+        Returns dpid, port of a given Mac
+        :param self: Self
+        :type self: class object
+        
+        :param mac: mac address who's port no we wish to find
+        :type mac: string
+        
+        :returns: integer port number
+        :rtype: int
+        """
+        return self.mac_to_port[mac]
+        
     def parse_ports(ports):
         self.topo[(dpid,port_no)]=(self._topo.P_LEARNING,None)
         pass
