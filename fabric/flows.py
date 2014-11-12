@@ -151,7 +151,7 @@ def flow_install_transit(dp):
     dp.send_msg(mod)
 
 
-def flow_inbound(dp):
+def flow_inbound(self,dp):
     '''
     Produces a FlowMod that will match PBB encapsulated flows
     destined to this switch and decapsulates them before switching
@@ -163,8 +163,15 @@ def flow_inbound(dp):
     :returns: flow mod message
     :rtype: `parser.OFPFlowMod`
     '''
-    pass
-
+    # Has to be called after checking if a message received is destined to itself
+    self.ethertype=0x88E7
+    match=parser.OFPmatch(eth_type=0x88E7)
+    action=ofp.OFPActionPopPbb(self.ethertype)
+    mod = parser.OFPFlowMod(    datapath = dp,
+                                priority =1,
+                                match,
+                                instruction = compose(action,to_table=LOCAL_TABLE))
+    dp.send_msg(mod)
 
 def send_out_packet(dp, pkt, out_port):
     """
