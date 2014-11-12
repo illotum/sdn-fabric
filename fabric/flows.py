@@ -180,8 +180,6 @@ def send_out_packet(dp, pkt, out_port):
     :returns: packet out message
     :rtype: `parser.OFPPacketOut`
     """
-def send_out_packet(dp,pkt,out_port):
-
     actions = [parser.OFPActionOutput(out_port)]
 
     msg= dp.ofproto_parser.OFPPacketOut(datapath=dp, buffer_id=ofp.OFP_NO_BUFFER, in_port=msg.in_port,actions=actions,data=pkt)
