@@ -74,7 +74,7 @@ class TopologyDB(dict):
 				if i is not j:
 					self_paths[(i,j)]=shortestPath(neighbourTable,i,j)
 
-	def get_all_core(self,lsdb,coreLinks=[]):
+    def get_all_core(self,lsdb,coreLinks=[]):
         """
         Returns all links in P_CORE state
 
@@ -82,59 +82,59 @@ class TopologyDB(dict):
         :rtype: list of (dpid, port_no)
         """
         for x in  lsdb.keys():
-			if lsdb[x][0] is 2:
-				coreLinks.append((x,lsdb[x][1]))
+	    if lsdb[x][0] is 2:
+		coreLinks.append((x,lsdb[x][1]))
 		return coreLinks
     
-	def active_core_links(self,lsdb):
-		activeLinks = {}
-		for x in  lsdb.keys():
-			if lsdb[x][0] is 2:
-				activeLinks[x] = lsdb[x][1]
+    def active_core_links(self,lsdb):
+	activeLinks = {}
+	for x in  lsdb.keys():
+	    if lsdb[x][0] is 2:
+		activeLinks[x] = lsdb[x][1]
 		return activeLinks
 
-	def neighbour_discovery(self,lsdb,topoTable={}):
-		dlink = self.active_core_links(lsdb)
-		for x,y in dlink.keys():
-			if x not in topoTable:
-				topoTable[x] = {dlink[(x,y)]:y}
-			else:
-				topoTable[x][dlink[(x,y)]] = y
-		return topoTable
+    def neighbour_discovery(self,lsdb,topoTable={}):
+	dlink = self.active_core_links(lsdb)
+	for x,y in dlink.keys():
+		if x not in topoTable:
+			topoTable[x] = {dlink[(x,y)]:y}
+		else:
+			topoTable[x][dlink[(x,y)]] = y
+			return topoTable
 
-	def shortestPath(self,G,start,end):
-		D,P = self.Dijkstra(G,start,end)
-		Path = []
-		while 1:
-			Path.append(end)
-			if end == start:
-				break
-			end = P[end]
-		Path.reverse()
-		Path = self.path_to_port(Path,G)
-		return Path
+    def shortestPath(self,G,start,end):
+	D,P = self.Dijkstra(G,start,end)
+	Path = []
+	while 1:
+	    Path.append(end)
+	    if end == start:
+		break
+	    end = P[end]
+	Path.reverse()
+	Path = self.path_to_port(Path,G)
+	return Path
 
-	def Dijkstra(self,G,start,end =None):
-		D = {}	# dictionary of final distances
-		P = {}	# dictionary of predecessors
-		Q = PQDict()   # est.dist. of non-final vert.
-		Q[start] = 0
+    def Dijkstra(self,G,start,end =None):
+	D = {}	# dictionary of final distances
+	P = {}	# dictionary of predecessors
+	Q = PQDict()   # est.dist. of non-final vert.
+	Q[start] = 0
 
-		for v in Q:
-			D[v] = Q[v]
-			if v == end: break
+	for v in Q:
+	    D[v] = Q[v]
+	    if v == end: break
 			
-			for w in G[v]:
-				vwLength = D[v] + 1
-				if w in D:
-					if vwLength < D[w]:
-						raise ValueError, \
+	    for w in G[v]:
+	        vwLength = D[v] + 1
+		if w in D:
+		    if vwLength < D[w]:
+		        raise ValueError, \
 	"Dijkstra: found better path to already-final vertex"
-				elif (w not in Q) or (vwLength < Q[w]):
-					Q[w] = vwLength
-					P[w] = v
+		elif (w not in Q) or (vwLength < Q[w]):
+		    Q[w] = vwLength
+		    P[w] = v
 		
-		return D,P
+    return D,P
 
 	def path_to_port(self,path,G,count=0):
 		newPath= []
