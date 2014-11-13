@@ -135,7 +135,7 @@ def parse(data, dpid_src, port_src):
               with "dl_src" and "dl_dst" at minimum.
     :rtype: dict
     '''
-    descr = { "dpid_src" : '', "port_src" : '', "dl_src" : '', "dl_dst" : '' , "nl_src" : '', "nl_dst" : '' , "dpid_dst" : '' , "opcode" : ''}
+    descr = { "dpid_src" : '', "port_src" : '', "dl_src" : '', "dl_dst" : '' , "nl_src" : '', "nl_dst" : '' , "dpid_dst" : '' , "opcode" : '' , "ethertype" : ''}
     descr["dpid_src"] = dpid_src
     descr["port_src"] = port_src
     
