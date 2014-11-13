@@ -100,7 +100,7 @@ class TopologyDB(dict):
 			topoTable[x] = {dlink[(x,y)]:y}
 		else:
 			topoTable[x][dlink[(x,y)]] = y
-			return topoTable
+	return topoTable
 
     def shortestPath(self,G,start,end):
 	D,P = self.Dijkstra(G,start,end)
@@ -134,14 +134,14 @@ class TopologyDB(dict):
 		    Q[w] = vwLength
 		    P[w] = v
 		
-    return D,P
+        return D,P
 
-	def path_to_port(self,path,G,count=0):
-		newPath= []
-		while count < (len(path)-1):
-			src,dst = path[count],path[count+1]
-			newPath.append((src,G[src][dst]))
-			count+=1
-		return newPath
+    def path_to_port(self,path,G,count=0):
+	newPath= []
+	while count < (len(path)-1):
+	    src,dst = path[count],path[count+1]
+	    newPath.append((src,G[src][dst]))
+	    count+=1
+	return newPath
 		
         return [k for k,v in self.items() if v[0] == self.P_CORE]
