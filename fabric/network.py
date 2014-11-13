@@ -68,13 +68,13 @@ class TopologyDB(dict):
         Returns nothing
         It stores a table of self_paths-> {(src,dst)=>[(dpid,port_no),(),()]}
         '''
-        neighbourTable = neighbour_discovery(lsdb)
+        neighbourTable = self.neighbour_discovery(lsdb)
 		for i in neighbourTable.keys():
 			for j in neighbourTable.keys():
 				if i is not j:
 					self_paths[(i,j)]=shortestPath(neighbourTable,i,j)
 
-    def _get_all_core(self,lsdb,coreLinks=[]):
+	def get_all_core(self,lsdb,coreLinks=[]):
         """
         Returns all links in P_CORE state
 
@@ -86,15 +86,15 @@ class TopologyDB(dict):
 				coreLinks.append((x,lsdb[x][1]))
 		return coreLinks
     
-    def active_core_links(lsdb):
+	def active_core_links(self,lsdb):
 		activeLinks = {}
 		for x in  lsdb.keys():
 			if lsdb[x][0] is 2:
 				activeLinks[x] = lsdb[x][1]
 		return activeLinks
 
-	def neighbour_discovery(lsdb,topoTable={}):
-		dlink = active_core_links(lsdb)
+	def neighbour_discovery(self,lsdb,topoTable={}):
+		dlink = self.active_core_links(lsdb)
 		for x,y in dlink.keys():
 			if x not in topoTable:
 				topoTable[x] = {dlink[(x,y)]:y}
@@ -102,8 +102,8 @@ class TopologyDB(dict):
 				topoTable[x][dlink[(x,y)]] = y
 		return topoTable
 
-	def shortestPath(G,start,end):
-		D,P = Dijkstra(G,start,end)
+	def shortestPath(self,G,start,end):
+		D,P = self.Dijkstra(G,start,end)
 		Path = []
 		while 1:
 			Path.append(end)
@@ -111,10 +111,10 @@ class TopologyDB(dict):
 				break
 			end = P[end]
 		Path.reverse()
-		Path = path_to_port(Path,G)
+		Path = self.path_to_port(Path,G)
 		return Path
 
-	def Dijkstra(G,start,end =None):
+	def Dijkstra(self,G,start,end =None):
 		D = {}	# dictionary of final distances
 		P = {}	# dictionary of predecessors
 		Q = PQDict()   # est.dist. of non-final vert.
@@ -136,15 +136,12 @@ class TopologyDB(dict):
 		
 		return D,P
 
-	def path_to_port(path,G,count=0):
+	def path_to_port(self,path,G,count=0):
 		newPath= []
 		while count < (len(path)-1):
 			src,dst = path[count],path[count+1]
 			newPath.append((src,G[src][dst]))
 			count+=1
-		return newPath		
-
-
-
-
+		return newPath
+		
         return [k for k,v in self.items() if v[0] == self.P_CORE]
