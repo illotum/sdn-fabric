@@ -84,14 +84,14 @@ class TopologyDB(dict):
         for x in  lsdb.keys():
 	    if lsdb[x][0] is 2:
 		coreLinks.append((x,lsdb[x][1]))
-		return coreLinks
+	return coreLinks
     
     def active_core_links(self,lsdb):
 	activeLinks = {}
 	for x in  lsdb.keys():
 	    if lsdb[x][0] is 2:
 		activeLinks[x] = lsdb[x][1]
-		return activeLinks
+        return activeLinks
 
     def neighbour_discovery(self,lsdb,topoTable={}):
 	dlink = self.active_core_links(lsdb)
