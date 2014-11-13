@@ -68,12 +68,83 @@ class TopologyDB(dict):
         Returns nothing
         It stores a table of self_paths-> {(src,dst)=>[(dpid,port_no),(),()]}
         '''
+        neighbourTable = neighbour_discovery(lsdb)
+		for i in neighbourTable.keys():
+			for j in neighbourTable.keys():
+				if i is not j:
+					self_paths[(i,j)]=shortestPath(neighbourTable,i,j)
 
-    def _get_all_core(self):
+    def _get_all_core(self,lsdb,coreLinks=[]):
         """
         Returns all links in P_CORE state
 
         :returns: list of links
         :rtype: list of (dpid, port_no)
         """
+        for x in  lsdb.keys():
+			if lsdb[x][0] is 2:
+				coreLinks.append((x,lsdb[x][1]))
+		return coreLinks
+    
+    def active_core_links(lsdb):
+		activeLinks = {}
+		for x in  lsdb.keys():
+			if lsdb[x][0] is 2:
+				activeLinks[x] = lsdb[x][1]
+		return activeLinks
+
+	def neighbour_discovery(lsdb,topoTable={}):
+		dlink = active_core_links(lsdb)
+		for x,y in dlink.keys():
+			if x not in topoTable:
+				topoTable[x] = {dlink[(x,y)]:y}
+			else:
+				topoTable[x][dlink[(x,y)]] = y
+		return topoTable
+
+	def shortestPath(G,start,end):
+		D,P = Dijkstra(G,start,end)
+		Path = []
+		while 1:
+			Path.append(end)
+			if end == start:
+				break
+			end = P[end]
+		Path.reverse()
+		Path = path_to_port(Path,G)
+		return Path
+
+	def Dijkstra(G,start,end =None):
+		D = {}	# dictionary of final distances
+		P = {}	# dictionary of predecessors
+		Q = PQDict()   # est.dist. of non-final vert.
+		Q[start] = 0
+
+		for v in Q:
+			D[v] = Q[v]
+			if v == end: break
+			
+			for w in G[v]:
+				vwLength = D[v] + 1
+				if w in D:
+					if vwLength < D[w]:
+						raise ValueError, \
+	"Dijkstra: found better path to already-final vertex"
+				elif (w not in Q) or (vwLength < Q[w]):
+					Q[w] = vwLength
+					P[w] = v
+		
+		return D,P
+
+	def path_to_port(path,G,count=0):
+		newPath= []
+		while count < (len(path)-1):
+			src,dst = path[count],path[count+1]
+			newPath.append((src,G[src][dst]))
+			count+=1
+		return newPath		
+
+
+
+
         return [k for k,v in self.items() if v[0] == self.P_CORE]
