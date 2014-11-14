@@ -28,6 +28,9 @@ class NetworkManager(app_manager.RyuApp):
         super(NetworkManager, self).__init__(*args, **kwargs)
         self.net = Network()  #: Init the Network instance
 
+	self.features_dict={}
+	self.features_dict_intermediate={}
+	
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def _handle_switch_features(self, ev):
         """
@@ -41,7 +44,20 @@ class NetworkManager(app_manager.RyuApp):
         in `self._handle_port_status`.
 
         """
-        pass
+        msg = ev.msg
+    	dict_key=msg.ports.keys()
+	dict_key.remove(65534)
+	print dict_key
+	self.features_dict[msg.datapath_id]=""
+	print self.features_dict
+	for key in dict_key:
+            
+	    self.features_dict_intermediate[key]=[msg.ports[key].port_no,msg.ports[key].hw_addr,msg.ports[key].state]
+	    print self.features_dict_intermediate
+	    
+	self.features_dict[msg.datapath_id]=self.features_dict_intermediate
+	print self.features_dict
+	
 
     @set_ev_cls(ofp_event.EventOFPStateChange, [DEAD_DISPATCHER])
     def _handle_state_change(self, ev):
