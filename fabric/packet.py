@@ -40,7 +40,8 @@ def create_lldp(dpid):
     lldp_pkt = lldp.lldp(tlvs)
     pkt.add_protocol(lldp_pkt)
     pkt.serialize()
-    return pkt
+    data = pkt.data
+    return data
 
 
 def create_arp( dl_src,dl_dst,nl_src,nl_dst):
