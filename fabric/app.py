@@ -146,6 +146,6 @@ class NetworkManager(app_manager.RyuApp):
         
         """
 
-    	lldp_pkt=pack.create_lldp(dp)
+    	lldp_pkt=pack.create_lldp(dp.id)
     	msg=fl.send_out_packet(dp,lldp_pkt,ofp.OFPP_FLOOD)
     	dp.send_msg(msg)
