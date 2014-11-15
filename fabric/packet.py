@@ -146,7 +146,7 @@ def parse(data, dpid_src, port_src):
     pkt = packet.Packet(data)
     pkt_eth = pkt.get_protocol(ethernet.ethernet)
     
-    desrc["dl_src"] = pkt_eth.src
+    descr["dl_src"] = pkt_eth.src
     descr["dl_dst"] = pkt_eth.dst
     
     return descr
