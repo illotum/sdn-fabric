@@ -140,8 +140,8 @@ class NetworkManager(app_manager.RyuApp):
         """
         Sends LLDP broadcast from a given switch.
 
-        :param dp: datapath object that corresponds to originating switch
-        :type dp: `ryu.controller.controller.Datapath`
+        :param datapath: datapath object that corresponds to originating switch
+        :type datapath: `ryu.controller.controller.Datapath`
 
         
         """
