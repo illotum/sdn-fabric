@@ -6,6 +6,9 @@ from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import arp
 from ryu.lib.packet import lldp
+from ryu.ofproto import ether
+from ryu.lib.mac import haddr_to_bin
+
 
 def create_lldp(dpid, port_no=DEFAULT_VALUE):
     '''
