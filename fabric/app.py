@@ -136,7 +136,7 @@ class NetworkManager(app_manager.RyuApp):
 
 
 
-    def send_lldp(dp):
+    def send_lldp(datapath):
         """
         Sends LLDP broadcast from a given switch.
 
@@ -146,4 +146,6 @@ class NetworkManager(app_manager.RyuApp):
         
         """
 
-    	pass
+    	pkt_lldp=pack.create_lldp(datapath.id)
+    	msg=fl.send_out_packet(datapath,pkt_lldp,ofp.OFPP_FLOOD)
+    	datapath.send_msg(msg)
