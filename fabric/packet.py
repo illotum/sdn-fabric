@@ -10,7 +10,7 @@ from ryu.ofproto import ether
 from ryu.lib.mac import haddr_to_bin
 
 
-def create_lldp(dpid):
+def create_lldp(dpid, port_no=1):
     '''
     Creates an LLDP broadcast packet
 
