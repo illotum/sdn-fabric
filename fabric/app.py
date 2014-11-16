@@ -71,7 +71,7 @@ class NetworkManager(app_manager.RyuApp):
                   where datapath can be None if negotiation didn't
                   end successfully.
         """
-        pass
+        
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _handle_packet_in(self, ev):
