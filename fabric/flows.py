@@ -116,7 +116,7 @@ def flow_to_remote(dp, dl_dst, dpid):
                                 match,
                                 instruction = compose(action,to_table=LOCAL_TABLE))
 
-def match_all(self,ev):
+def match_all(dp):
 
     '''
 
@@ -133,11 +133,11 @@ def match_all(self,ev):
     '''
 
     match = parser.OFPMatch()
-
-    #actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
-
-                                     # ofproto.OFPCML_NO_BUFFER)]
-    return match
+    actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,ofproto.OFPCML_NO_BUFFER)]
+    mod = parser.OFPFlowMod(    datapath = dp,
+                                priority =1,
+                                match = match,instructions=compose(actions))
+    return mod
 
 
 def flow_install_transit(dp):
