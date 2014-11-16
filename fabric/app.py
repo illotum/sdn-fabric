@@ -30,7 +30,7 @@ class NetworkManager(app_manager.RyuApp):
         self.net = Network()  #: Init the Network instance
 
 	self.features_dict={}
-	self.features_dict_intermediate={}
+	
 	self.lsdb={}
 	
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
@@ -47,18 +47,15 @@ class NetworkManager(app_manager.RyuApp):
 
         """
         msg = ev.msg
+        datapath=msg.datapath
     	dict_key=msg.ports.keys()
 	dict_key.remove(65534)
-	print dict_key
-	self.features_dict[msg.datapath_id]=""
-	print self.features_dict
+	
 	for key in dict_key:
             
-	    self.features_dict_intermediate[key]=[msg.ports[key].port_no,msg.ports[key].hw_addr,msg.ports[key].state]
-	    print self.features_dict_intermediate
+	    self.features_dict[(msg.datapath_id,key)]=(msg.ports[key].state,msg.ports[key].hw_addr)
 	    
-	self.features_dict[msg.datapath_id]=self.features_dict_intermediate
-	print self.features_dict
+	self.send_lldp(datapath)
 	
 
     @set_ev_cls(ofp_event.EventOFPStateChange, [DEAD_DISPATCHER])
