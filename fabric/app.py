@@ -140,9 +140,6 @@ class NetworkManager(app_manager.RyuApp):
         elif reason == ofp.OFPPR_DELETE:
             self.logger.info("port deleted %s", port_no)
             # del self.lsdb[]
-        elif reason == ofp.OFPPR_MODIFY:
-            self.logger.info("port modified %s", port_no)
-            pass
         else:
             self.logger.info("Illeagal port state %s %s", port_no, reason)
 
