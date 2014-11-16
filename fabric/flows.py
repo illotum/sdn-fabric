@@ -130,10 +130,6 @@ def match_all(self,ev):
     Input: self, event
     Output: IT returns a parser.OFPMatch type
 
-
-
-    
-
     '''
 
     match = parser.OFPMatch()
