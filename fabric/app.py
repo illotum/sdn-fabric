@@ -8,6 +8,7 @@ from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER, DEAD_DISP
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_4 as ofp
 from ryu.ofproto import ofproto_v1_4_parser as parser
+from ryu.lib.mac import haddr_to_bin
 
 from fabric.network import Network
 import fabric.packet as pack
