@@ -127,15 +127,18 @@ def match_all(dp):
     Lowest Priority of 0 should be set for this match.
     It should be called as soon as a switch connects to a controller.
 
-    Input: self, event
-    Output: IT returns a parser.OFPMatch type
+    :param dp: datapath description
+    :type dp: `ryu.controller.controller.Datapath`
+    
+    :return: mod
+    :type: parser.OFPFlowMod
 
     '''
 
     match = parser.OFPMatch()
     actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,ofproto.OFPCML_NO_BUFFER)]
     mod = parser.OFPFlowMod(    datapath = dp,
-                                priority =1,
+                                priority =0,
                                 match = match,instructions=compose(actions))
     return mod
 
