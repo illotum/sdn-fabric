@@ -177,7 +177,7 @@ def flow_inbound(self,dp):
                                 instruction = compose(action,to_table=LOCAL_TABLE))
     dp.send_msg(mod)
 
-def send_out_packet(dp, pkt, out_port):
+def send_out_packet(dp, pkt, out_port, in_port=OFPP_CONTROLLER):
     """
     Produces a message for a switch to send the provided
     packet out.
@@ -193,7 +193,7 @@ def send_out_packet(dp, pkt, out_port):
     """
     actions = [parser.OFPActionOutput(out_port)]
 
-    msg= parser.OFPPacketOut(datapath=dp, buffer_id=ofp.OFP_NO_BUFFER, in_port=msg.in_port,actions=actions,data=pkt)
+    msg= parser.OFPPacketOut(datapath=dp, buffer_id=ofp.OFP_NO_BUFFER, in_port=in_port,actions=actions,data=pkt)
     return msg
 
 
