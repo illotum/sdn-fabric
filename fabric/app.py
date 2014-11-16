@@ -30,6 +30,7 @@ class NetworkManager(app_manager.RyuApp):
 
 	self.features_dict={}
 	self.features_dict_intermediate={}
+	self.lsdb={}
 	
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def _handle_switch_features(self, ev):
