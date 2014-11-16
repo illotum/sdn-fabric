@@ -130,17 +130,19 @@ class NetworkManager(app_manager.RyuApp):
         :param ev: port description and reason for state change
         :type ev: `ofp_event.EventOFPPortStatus`
         """
-        self.net = []
         msg = ev.msg
         reason = msg.reason
         port_no = msg.desc.port_no
         
         if reason == ofp.OFPPR_ADD:
             self.logger.info("port added %s", port_no)
+            # self.lsdb[]
         elif reason == ofp.OFPPR_DELETE:
             self.logger.info("port deleted %s", port_no)
+            # del self.lsdb[]
         elif reason == ofp.OFPPR_MODIFY:
             self.logger.info("port modified %s", port_no)
+            pass
         else:
             self.logger.info("Illeagal port state %s %s", port_no, reason)
 
