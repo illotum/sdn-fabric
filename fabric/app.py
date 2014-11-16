@@ -102,8 +102,8 @@ class NetworkManager(app_manager.RyuApp):
         
         pkt_lldp=pkt.get_protocol(lldp.lldp)
         if pkt_lldp:
-           pack.parse_lldp(descr,msg.data)
-           return
+           descr=pack.parse_lldp(descr,msg.data)
+	   self.lsdb[(descr["dpid_src"],descr["port_src"])]=(2,descr["dpid_dst"])
 
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)
     def _handle_port_status(self, ev):
