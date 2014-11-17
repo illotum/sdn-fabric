@@ -227,15 +227,4 @@ def add_flow(self, datapath, in_port, dst, actions):
             flags=ofp.OFPFF_SEND_FLOW_REM, actions=actions)
         datapath.send_msg(mod)    
 
-def install_default_flow(dp):
-    """
-    :param dp: datapath description
-    :type dp: `ryu.controller.controller.Datapath
-    
-    """
-    match = parser.OFPMatch()
-    actions = [parser.OFPActionOutput(ofp.OFPP_CONTROLLER, ofp.OFPCML_NO_BUFFER)]
-    inst = [parser.OFPInstructionActions(ofp.OFPIT_APPLY_ACTIONS, actions)]
-    mod = parser.OFPFlowMod(datapath=dp, priority=0, match=match, instructions=inst, table_id=0)
-    dp.send_msg(mod)
 
