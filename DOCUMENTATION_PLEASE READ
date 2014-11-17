@@ -1,0 +1,485 @@
+SDN GROUP FINAL ASSIGNMENT
+
+
+MEMBERS:
+
+1.	Tarun Gumma(TG)
+2.	Rahul Kumar(RK)
+3.	Shayan Perwaiz(SP)
+4.	Sandesh Shrestha(SS)
+5.	Alexey Ignotov(AI)
+6.	Usman Rasheed(UR)
+7.	Nooruddin Khorasi(NK)
+
+
+TABLE OF CONTENTS
+
+Contents
+ABSTRACT	2
+COMPONENTS OF OUR APPLICATION	2
+APP.PY	3
+FLOWS.PY	4
+NETWORK.PY	8
+PACKET.PY	10
+CONCLUSIONS:	12
+
+
+
+	
+ABSTRACT
+
+
+	Our assignment simulates a controller in an edge-to-core topology network. We aim to make a controller that effectively switches traffic from the edge switches and their hosts to another part of the network. The flow of the controller goes as follows.
+ If the switch knows it is the edge switch and it has received a packet to one of its hosts, it will send the packet to the respective host based on its destination mac address. If not, the switch encapsulates the packet in a PBB packet and send the packet out towards the core switch. If a switch is a transit switch and it receives a packet which is destined to a host, it sends the packet on its way to the core switch.
+The core switch, sends its way back to the edge switch which has the connected mac address. The edge switch, de-encapsulates the PBB message once it is the destination switch and then delivers the packet to the destination. 
+Our assignment has used Open_Flow_Version 1.4 in our Assignment.
+
+COMPONENTS OF OUR APPLICATION
+
+Our controller is contained in the github/sdn-fabric/fabric folder and is stored in 4 parts.
+App.py
+Flows.py
+Network.py
+Packet.py
+
+
+
+
+
+
+
+APP.PY
+
+Class: Network Manager
+Functions:
+def _handle_switch_features(self, ev):
+"""
+	        Handle new switches connecting to the network, their ports
+	        and initiates a round of LLDP discovery.
+	
+	        Feeds all port statuses to `self.net` and sends out LLDP discovery.
+	
+	        TODO: Investigate if it is needed. Possibly better to handle
+	        switch state in `self._handle_state_change` and port state
+	        in `self._handle_port_status`
+
+DONE BY : Usman Rasheed.(UR)
+	
+	        """
+
+def _handle_state_change(self, ev):
+"""
+	        Handle switch going down and performs a topology update.
+	
+	        Unlike OFPSwitchFeatures, this event doesn't carry ports state,
+	        but is fired also on switch going down.
+	
+	        :param ev: datapath description and reason for state change
+	        :type ev: `ofp_event.EventOFPStateChange`,
+	                  where datapath can be None if negotiation didn't
+	                  end successfully.
+
+DONE BY: Usman Rasheed (UR)
+	        """
+
+def _handle_packet_in(self, ev):
+"""
+	        Parses incoming packet and calls a method that corresponds to dl_type.
+	
+	        :param ev: packet contents and match structure to describe its
+	                   headers.
+	        :type ev: `ofp_event.EventOFPPacketIn`
+
+DONE BY: Sandesh Shrestha (SS)
+	        """
+
+
+def _handle_port_status(self, ev):
+"""
+	        Depending on `ev.msg.reason` adds or deletes port entry
+	        in `self.net` and starts another round of LLDP discovery.
+	
+	        :param ev: port description and reason for state change
+	        :type ev: `ofp_event.EventOFPPortStatus`
+
+DONE BY: Alexey Ignotov (AI)
+	        """
+   def reply_to_arp(dp, pkt):
+"""
+	        Responds to incoming ARP request using `self.net.mac_of` dict
+	
+	        :param dp: datapath object that corresponds to originating switch
+	        :type dp: `ryu.controller.controller.Datapath`
+	
+	        :param pkt: parsed eth and ARP headers of the request
+	        :type pkt: dict
+
+DONE BY: Shayan Perwaiz (SP)
+	        """
+
+def send_lldp(datapath):
+"""
+	        Sends LLDP broadcast from a given switch
+	
+	        :param datapath: datapath object that corresponds to originating switch
+	        :type datapath: `ryu.controller.controller.Datapath`
+	
+	        
+DONE BY: Sandesh Shrestha(SS)
+	        """
+
+FLOWS.PY
+
+Functions:
+
+def compose(actions=[], to_table=0):
+"""
+	    Compose instructions set from given entries
+	
+	    :param actions: actions to perform after match
+	    :type actions: list of `parser.OFPAction`
+	
+	    :param to_table: table to switch to after applying all actions;
+	                     value 0 (default table) will be ignored
+	    :type to_table: int
+	
+	    :returns: instructions for `parser.OFPFlowMod`
+	    :rtype: list of `parser.OFPInstruction`
+	    """
+
+
+
+
+def dpid_to_mac(dpid):
+
+"""
+	    Cuts only lowest 48 bits of an integer
+	
+	    :param dpid: 64bits of switch id
+	    :type dpid: int
+	
+	    :returns: 48bits of MAC address
+	    :rtype: int
+
+DONE BY: Shayan (SP)
+	    """
+
+def flow_to_port(dp, dl_dst, out_port, table=LOCAL_TABLE):
+'''
+	    Creates a FlowMod structure that matches destination MAC and
+	    send packet out of a port.
+	
+	    By default is used for local switching, but table may be set to
+	    `fabric.flow.TRANSIT_TABLE` for transit rules.
+	
+	    :param dp: switch description
+	    :type dp: `ryu.controller.controller.Datapath`
+	
+	    :param dl_dst: destination MAC address
+	    :type dl_dst: int
+	
+	    :param out_port: output port
+	    :type out_port: int
+	
+	    :returns: FlowMod to send to the switch
+	    :rtype: `parser.OFPFlowMod`
+
+DONE BY: SHAYAN (SP)
+	    '''
+
+
+
+def flow_to_remote(dp, dl_dst, dpid):
+'''
+	    Creates a FlowMod structure that matches destination MAC and
+	    encapsulates frame in PBB before switching to a TRANSIT table.
+	
+	    :param dp: switch description
+	    :type dp: `ryu.controller.controller.Datapath`
+	
+	    :param dl_dst: original destination MAC address
+	    :type dl_dst: int
+	
+	    :param dpid: destination switch id to be set as dl_dst after encapsulation
+	    :type out_port: int
+	
+	    :returns: FlowMod to send to the switch
+	    :rtype: `parser.OFPFlowMod`
+
+DONE BY: ALEXEY IGNOTOV (AI)
+	    '''
+
+def match_all(dp):
+'''
+	
+	    An empty match is done or in other words, as soon as the
+	
+	    switch connects to the controller, it is instructed to match every packet.
+	
+	    Lowest Priority of 0 should be set for this match.
+	    It should be called as soon as a switch connects to a controller.
+	
+	    :param dp: datapath description
+	    :type dp: `ryu.controller.controller.Datapath`
+	    
+	    :return: mod
+	    :type: parser.OFPFlowMod
+
+DONE BY: TARUN GUMMA (TG)
+	
+	    '''
+
+
+
+
+
+
+
+
+
+def flow_install_transit(dp):
+
+'''
+	    Creates a FlowMod structure that matches PBB packets and switches them to a CORE table.
+	    :param dp: datapath description
+	    :type dp: `ryu.controller.controller.Datapath`
+
+DONE BY: ALEXEY IGNOTOV (AI)
+	    '''
+
+
+def flow_inbound(self,dp):
+'''
+	    Produces a FlowMod that will match PBB encapsulated flows
+	    destined to this switch and decapsulates them before switching
+	    to LOCAL table
+	
+	    :param dp: datapath description
+	    :type dp: `ryu.controller.controller.Datapath`
+	
+	    :returns: flow mod message
+	    :rtype: `parser.OFPFlowMod`
+
+DONE BY : TARUN GUMMA (TG)
+	    '''
+
+
+
+def send_out_packet(dp, pkt, out_port, in_port=OFPP_CONTROLLER):
+"""
+	    Produces a message for a switch to send the provided
+	    packet out.
+	
+	    :param dp: datapath description
+	    :type dp: `ryu.controller.controller.Datapath`
+	
+	    :param pkt: packet contents in serialized format
+	    :type pkt: `bytearray`
+	
+	    :returns: packet out message
+	    :rtype: `parser.OFPPacketOut`
+
+DONE BY: TARUN GUMMA(TG)
+	    """
+
+def add_flow(self, datapath, in_port, dst, actions):
+
+"""
+	        Add flow Adds a specific flow to a switch.
+	        :param self: self object
+	        :type self: object type
+	        
+	        :param datapath: Datapath of switch(dpid)
+	        :type datapath:`ryu.controller.controller.Datapath`
+	        
+	        :param in_port: Incoming port of message on the switch
+	        :type in_port: int
+	        
+	        :param dst: Destination Mac Address
+	        :type dst: String
+	        
+	        :param actions: An Action or list of Actions that will be perfomed on a suitable match in the flow mod table
+	        :type actions: parser.OFPAction`
+
+DONE BY: Sandesh(SS)
+	        """
+
+NETWORK.PY
+
+CLASS: NETWORK
+FUNCTIONS:
+def mac_of_ip(self, ip):
+"""
+	        Returns mac of a given ip
+	
+	        :param ip: 32b IP for a lookup
+	        :type ip: int
+	
+	        :returns: 48b MAC
+	        :rtype: int
+	        """
+
+def port_of_mac(self,mac):
+"""
+	        Returns dpid, port of a given Mac
+	        :param self: Self
+	        :type self: class object
+	        
+	        :param mac: mac address who's port no we wish to find
+	        :type mac: string
+	        
+	        :returns: integer port number
+	        :rtype: int
+
+DONE BY: TARUN (TG)
+	        """
+
+CLASS : topologyDB
+FUNCTIONS:
+def spf():
+'''
+	        It stores a table of self_paths-> {(src,dst)=>[(dpid,port_no),(),()]}
+	        
+	        returns a list of src,dst=> dpid,port_no
+	        '''
+
+def get_all_core(self,lsdb,coreLinks=[]):
+"""
+	        Returns all links in P_CORE state
+	
+	        :returns: list of links
+	        :rtype: list of (dpid, port_no)
+
+DONE BY: TARUN GUMMA(TG)
+	        """
+
+
+def active_core_links(self,lsdb):
+"""
+	    	Returns all links which are Active and connected to another switch
+	    	:returns: Dictionary of active_links
+	    	:return Type: Dictionary
+
+DONE BY: Shayan (SP)
+	    	"""
+
+def neighbour_discovery(self,lsdb,topoTable={}):
+	"""
+	    	:param lsdb: link state data base
+	    	:type lsdb: Dictionary
+	    	
+	    	:param topoTable: topology table.
+	    	:type topoTable: Dictionary
+
+DONE BY: Shayan (SP)
+	    	"""
+
+
+
+def shortestPath(self,G,start,end):
+‘’’
+DONE BY: SHAYAN(SP)
+‘’’
+
+def Dijkstra(self,G,start,end =None):
+‘’’
+DONE BY: SHAYAN(SP)
+‘’’
+def path_to_port(self,path,G,count=0):
+‘’’
+DONE BY: SHAYAN(SP)
+‘’’
+PACKET.PY
+
+FUNCTIONS:
+DONE BY: RAHUL KUMAR(RK)
+def create_lldp(dpid, port_no=1):
+'''
+	    Creates an LLDP broadcast packet
+	
+	    :param dpid: 64bit switch id
+	    :type dpid: int
+	
+	    :param port_no: port number
+	    :type port_no: int
+	
+	    :returns: binary representation of LLDP packet
+	    :rtype: `bytearray`
+	    '''
+
+
+def create_arp( dl_src,dl_dst,nl_src,nl_dst):
+'''
+	    Creates an ARP reply packet
+	
+	    :param dl_src: 48bit MAC address
+	    :type dl_src: int
+	
+	    :param dl_dst: 48bit MAC address
+	    :type dl_dst: int
+	
+	    :param nl_src: 32bit IP address
+	    :type nl_src: int
+	
+	    :param nl_dst: 32bit IP address
+	    :type nl_dst: int
+	
+	    :returns: binary representation of ARP packet
+	    :rtype: `bytearray`
+	    '''
+def parse_lldp(descr,data):
+'''
+	    Parses LLDP headers and adds them to provided dict
+	
+	    :param data: binary of a packet to parse
+	    :type data: bitearray
+	
+	    :param headers: parsed headers
+	    :type headers: dict
+	
+	    :returns: `headers` with additional entries
+	              of "dpid" and "port_no" form LLDP
+	    :rtype: dict
+	    '''
+
+def parse_arp(descr,data):
+'''
+	    Parses ARP headers and adds them to provided dict
+	
+	    :param data: binary of a packet to parse
+	    :type data: bitearray
+	
+	    :param headers: parsed headers
+	    :type headers: dict
+	
+	    :returns: `headers` with additional entries of "opcode", "nl_src"
+	              and "nl_dst" form ARP.
+	              Entries from the Ethernet frame, "dl_src" and "dl_dst",
+	              are NOT overwritten.
+	    :rtype: dict
+	    '''
+def parse(data, dpid_src, port_src):
+'''
+	    Parses Ethernet headers and calls for additional parsing
+	    in case of ARP and LLDP.
+	
+	    :param data: binary of a packet to parse
+	    :type data: bitearray
+	
+	    :returns: dictionary of all important headers parsed
+	              with "dl_src" and "dl_dst" at minimum.
+	    :rtype: dict
+	    '''
+
+CONCLUSIONS:
+
+As the testing of the code is ongoing at the time of making the documentation, we cannot say what the deliverables for the Assignment are.
+However, I can say that in spite of all of us having different schedules, staying at different locations we have worked as a team together in putting together this Assignment. Although each of us has worked on our individual part, we cannot underplay the effort put into the code as a whole by everyone and I would like to thank you on behalf of everyone for giving us the opportunity to do so.
+I would like to highlight our Minutes of Meet this week to give you an idea of the amount of time we spent on the assignment as a group:
+Monday: 12:30 Pm- 430 Pm.
+Tuesday: 4 Pm- 5 Pm 
+Thursday: 4:00 Pm- 6:00 Pm
+Sunday: 4:00 Pm- 7:00 Pm 
+Once again, thank you for this amazing opportunity. It was a great learning experience and something we all will always remember.
+
+
