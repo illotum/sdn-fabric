@@ -97,16 +97,16 @@ class NetworkManager(app_manager.RyuApp):
         pkt=packet.Packet(msg.data)
         datapath=msg.datapath
         in_port=msg.match['in_port']
-        descr=pack.parse(msg.data,datapath.id,in_port)
+        descr=pack.parse(msg.data,datapath.id,in_port) # calls parse function and stores packet data in descr
         
-        pkt_arp=pkt.get_protocol(arp.arp)
+        pkt_arp=pkt.get_protocol(arp.arp) # checks for arp packet
         if pkt_arp:
-            descr=pack.parse_arp(descr,msg.data)
+            descr=pack.parse_arp(descr,msg.data) # calls parse_arp function to get source and destination ip addresses
 	    
-            self.net.ip_to_mac[descr["nl_src"]]=descr["dl_src"]
-            
+            self.net.ip_to_mac[descr["nl_src"]]=descr["dl_src"] # saves ip to mac entry in ip_to_mac dictionary
+            # mac_to_port format = {dpid:{mac-address:in_port}}
 	    self.net.mac_to_port.setdefault(datapath.id, {})
-            self.net.mac_to_port[datapath.id][descr["dl_src"]]=in_port
+             
             
             key=descr["nl_dst"]
 	    if key in self.net.ip_to_mac:
@@ -115,10 +115,10 @@ class NetworkManager(app_manager.RyuApp):
 		self.reply_to_arp(datapath.id,arp_dict)
 		return
 	
-	self.net.mac_to_port[descr["dl_src"]]=in_port
+	
         
         dst=descr["dl_src"]
-        self.net.mac_to_port[datapath.id][dst] = in_port
+        self.net.mac_to_port[datapath.id][dst] = in_port # saves mac to port entry in mac_to_port dictionary
 
         if dst in self.net.mac_to_port[datapath.id]:
             out_port = self.net.mac_to_port[datapath.id][dst]
@@ -134,11 +134,11 @@ class NetworkManager(app_manager.RyuApp):
         out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id, in_port=in_port,actions=actions)
 	datapath.send_msg(out)
 
-        
+        # lldp packet parsing
         pkt_lldp=pkt.get_protocol(lldp.lldp)
         if pkt_lldp:
             descr=pack.parse_lldp(descr,msg.data)
-            self.lsdb[(descr["dpid_src"],descr["port_src"])]=(2,descr["dpid_dst"])
+            self.lsdb[(descr["dpid_src"],descr["port_src"])]=(2,descr["dpid_dst"]) # 2 refers to core switches
 	    try:
 	    	new_topology=self.topo.spf(self.lsbd)
 	    except:
