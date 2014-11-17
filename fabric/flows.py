@@ -146,6 +146,8 @@ def match_all(dp):
 def flow_install_transit(dp):
     '''
     Creates a FlowMod structure that matches PBB packets and switches them to a CORE table.
+    :param dp: datapath description
+    :type dp: `ryu.controller.controller.Datapath`
     '''
     mod = parser.OFPFlowMod(    datapath = dp,
                                 priority =1,
