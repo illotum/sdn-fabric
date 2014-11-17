@@ -46,16 +46,18 @@ class NetworkManager(app_manager.RyuApp):
         in `self._handle_port_status`
 
         """
-        msg = ev.msg
-        datapath=msg.datapath
-    	dict_key=msg.ports.keys()
-	dict_key.remove(65534)
-	
-	for key in dict_key:
-            
-	    self.features_dict[(msg.datapath_id,key)]=(msg.ports[key].state,msg.ports[key].hw_addr)
-	    
-	self.send_lldp(datapath)
+        msg = ev.msg 
+        datapath=msg.datapath fl.install_default_flow(datapath) 
+        port_list=msg.ports.keys() 
+        port_list.remove(65534) 
+        self.switch_connected[datapath.id]=datapath 
+        self.port_state[(datapath.id] 
+        
+        for key in port_list: 
+        	self.features_dict[(msg.datapath_id,key)]=(0,msg.ports[key].hw_addr)
+
+	for key in switch_connected: 
+		self.send_lldp(switch_connected[key])
 	
 
     @set_ev_cls(ofp_event.EventOFPStateChange, [DEAD_DISPATCHER])
