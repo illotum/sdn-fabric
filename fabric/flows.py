@@ -109,11 +109,11 @@ def flow_to_remote(dp, dl_dst, dpid):
     :returns: FlowMod to send to the switch
     :rtype: `parser.OFPFlowMod`
     '''
-    match = parser.OFPmatch(eth_dst = dl_dst)
     action = [ofp.OFPActionPushPbb(0x88E7), OFPActionSetField(eth_dst = dpid]
     mod = parser.OFPFlowMod(    datapath = dp,
-                                match,
-                                instruction = compose(action,to_table=LOCAL_TABLE))
+                                match = parser.OFPmatch(eth_dst = dl_dst),
+                                instruction = compose(action,to_table=LOCAL_TABLE),
+                                table_id=1)
 
 def match_all(dp):
 
