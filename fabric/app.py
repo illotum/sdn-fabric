@@ -144,6 +144,7 @@ class NetworkManager(app_manager.RyuApp):
 	    	new_topology=self.topo.spf(self.lsbd)
 	    except:
 	    	pass
+	    
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)
     def _handle_port_status(self, ev):
         """
