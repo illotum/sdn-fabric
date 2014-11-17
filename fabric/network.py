@@ -89,6 +89,11 @@ class TopologyDB(dict):
 	return coreLinks
     
     def active_core_links(self,lsdb):
+    	"""
+    	Returns all links which are Active and connected to another switch
+    	:returns: Dictionary of active_links
+    	:return Type: Dictionary
+    	"""
 	activeLinks = {}
 	for x in  lsdb.keys():
 	    if lsdb[x][0] is 2:
@@ -96,6 +101,13 @@ class TopologyDB(dict):
         return activeLinks
 
     def neighbour_discovery(self,lsdb,topoTable={}):
+    	"""
+    	:param lsdb: link state data base
+    	:type lsdb: Dictionary
+    	
+    	:param topoTable: topology table.
+    	:type topoTable: Dictionary
+    	"""
 	dlink = self.active_core_links(lsdb)
 	for x,y in dlink.keys():
 		if x not in topoTable:
@@ -117,6 +129,9 @@ class TopologyDB(dict):
 	return Path
 
     def Dijkstra(self,G,start,end =None):
+    	"""
+    	Computes Djikstras algorithm to get best paths
+    	"""
 	D = {}	# dictionary of final distances
 	P = {}	# dictionary of predecessors
 	Q = PQDict()   # est.dist. of non-final vert.
