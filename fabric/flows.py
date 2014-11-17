@@ -195,5 +195,11 @@ def send_out_packet(dp, pkt, out_port, in_port=OFPP_CONTROLLER):
 
     msg= parser.OFPPacketOut(datapath=dp, buffer_id=ofp.OFP_NO_BUFFER, in_port=in_port,actions=actions,data=pkt)
     return msg
-
+    
+def install_default_flow(dp):
+    match = parser.OFPMatch()
+    actions = [parser.OFPActionOutput(ofp.OFPP_CONTROLLER, ofp.OFPCML_NO_BUFFER)]
+    inst = [parser.OFPInstructionActions(ofp.OFPIT_APPLY_ACTIONS, actions)]
+    mod = parser.OFPFlowMod(datapath=dp, priority=0, match=match, instructions=inst, table_id=0)
+    dp.send_msg(mod)
 
