@@ -165,7 +165,7 @@ class NetworkManager(app_manager.RyuApp):
 
     def send_lldp(datapath):
         """
-        Sends LLDP broadcast from a given switch.
+        Sends LLDP broadcast from a given switch
 
         :param datapath: datapath object that corresponds to originating switch
         :type datapath: `ryu.controller.controller.Datapath`
