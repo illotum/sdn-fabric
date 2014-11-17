@@ -40,7 +40,7 @@ class Network(object):
         :type mac: string
         
         :returns: integer port number
-        :rtype: int
+        :rtype:int
         """
         return self.mac_to_port[mac]
         
