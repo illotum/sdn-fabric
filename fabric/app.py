@@ -34,6 +34,7 @@ class NetworkManager(app_manager.RyuApp):
 	self.port_list={}
 	self.switch_connected={}
 	self.lsdb={}
+	self.features_dict={}
 	
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def _handle_switch_features(self, ev):
@@ -49,15 +50,16 @@ class NetworkManager(app_manager.RyuApp):
 
         """
         msg = ev.msg 
-        datapath=msg.datapath fl.install_default_flow(datapath) 
-        port_list=msg.ports.keys() 
-        port_list.remove(65534) 
-        self.switch_connected[datapath.id]=datapath 
-        self.port_state[(datapath.id] 
-        
+        datapath=msg.datapath 
+        fl.install_default_flow(datapath)  # installs default flows for openflow 1.4
+        port_list=msg.ports.keys()         # gets the list of ports from msg.ports dictionary
+        port_list.remove(65534)            # removes the port connected to controller
+        self.switch_connected[datapath.id]=datapath  # stores datapath id as key and datapath object as value
+         
+        #stores port details in features_dict dictionary. 0 means learning state.
         for key in port_list: 
         	self.features_dict[(msg.datapath_id,key)]=(0,msg.ports[key].hw_addr)
-
+        # sends lldp packets to all connected switches
 	for key in switch_connected: 
 		self.send_lldp(switch_connected[key])
 	
@@ -75,6 +77,7 @@ class NetworkManager(app_manager.RyuApp):
                   where datapath can be None if negotiation didn't
                   end successfully.
         """
+        # deletes disconnected switch and sends lldp to every connected switch.
         del switch_connected[ev.datapath] 
         for key in switch_connected: 
             self.send_lldp(key)
