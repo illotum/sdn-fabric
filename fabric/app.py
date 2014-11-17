@@ -81,6 +81,8 @@ class NetworkManager(app_manager.RyuApp):
         del switch_connected[ev.datapath] 
         for key in switch_connected: 
             self.send_lldp(key)
+            
+        new_topology=self.topo.spf(self.lsbd)    # udpates the topology
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _handle_packet_in(self, ev):
