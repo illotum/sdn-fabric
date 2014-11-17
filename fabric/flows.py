@@ -72,9 +72,9 @@ def flow_to_port(dp, dl_dst, out_port, table=LOCAL_TABLE):
     '''
 
     actions = [parser.OFPActionOutput(out_port)]
-    ofp = datapath.ofproto #NOT REQUIRED AS WE DEFINED THE PROTOCOL FOR THE SWITCHES AS REQUIREMENT WHEN IT CONNECTES TO THE CONTROLLER
+    ofp = datapath.ofproto
     parser = datapath.ofproto_parser
-    inst = [dp.OFPInstructionActions(ofp.OFPIT_APPLY_ACTION,actions)] #WE HAVE A COMPOSE FUNCTION TO COMPOSE THE INSTRUCTIONS
+    inst = [dp.OFPInstructionActions(ofp.OFPIT_APPLY_ACTION,actions)]
 
     if table is LOCAL_TABLE:
         mod = parser.OFPFlowMod(datapath = dp,
