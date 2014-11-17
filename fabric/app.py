@@ -107,7 +107,9 @@ class NetworkManager(app_manager.RyuApp):
             # mac_to_port format = {dpid:{mac-address:in_port}}
 	    self.net.mac_to_port.setdefault(datapath.id, {})
              
-            
+            dst=descr["dl_src"]
+            self.net.mac_to_port[datapath.id][dst] = in_port # saves mac to port entry in mac_to_port dictionary
+        
             key=descr["nl_dst"]
 	    if key in self.net.ip_to_mac:
 	    	dl_dst=self.net.ip_to_mac[key]
@@ -117,8 +119,7 @@ class NetworkManager(app_manager.RyuApp):
 	
 	
         
-        dst=descr["dl_src"]
-        self.net.mac_to_port[datapath.id][dst] = in_port # saves mac to port entry in mac_to_port dictionary
+        
 
         if dst in self.net.mac_to_port[datapath.id]:
             out_port = self.net.mac_to_port[datapath.id][dst]
