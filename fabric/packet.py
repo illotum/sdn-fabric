@@ -64,7 +64,7 @@ def create_arp( dl_src,dl_dst,nl_src,nl_dst):
     :rtype: `bytearray`
     '''
     pkt = packet.Packet()
-    pkt.add_protocol(ethernet.ethernet(ethertype=pkt_eth.ethertype,
+    pkt.add_protocol(ethernet.ethernet(ethertype=2054,
                                                dst=dl_dst,
                                                src=dl_src))
     pkt.add_protocol(arp.arp(opcode=arp.ARP_REPLY,
