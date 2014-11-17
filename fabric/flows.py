@@ -195,5 +195,18 @@ def send_out_packet(dp, pkt, out_port, in_port=OFPP_CONTROLLER):
 
     msg= parser.OFPPacketOut(datapath=dp, buffer_id=ofp.OFP_NO_BUFFER, in_port=in_port,actions=actions,data=pkt)
     return msg
+    
+def add_flow(self, datapath, in_port, dst, actions):
+        
+
+        match = datapath.ofproto_parser.OFPMatch(
+            in_port=in_port, dl_dst=haddr_to_bin(dst))
+
+        mod = datapath.ofproto_parser.OFPFlowMod(
+            datapath=datapath, match=match, cookie=0,
+            command=ofp.OFPFC_ADD, idle_timeout=0, hard_timeout=0,
+            priority=ofp.OFP_DEFAULT_PRIORITY,
+            flags=ofp.OFPFF_SEND_FLOW_REM, actions=actions)
+        datapath.send_msg(mod)    
 
 
