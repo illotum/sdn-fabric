@@ -43,7 +43,7 @@ class NetworkManager(app_manager.RyuApp):
 
         TODO: Investigate if it is needed. Possibly better to handle
         switch state in `self._handle_state_change` and port state
-        in `self._handle_port_status`.
+        in `self._handle_port_status`
 
         """
         msg = ev.msg
