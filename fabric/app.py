@@ -60,8 +60,8 @@ class NetworkManager(app_manager.RyuApp):
         for key in port_list: 
         	self.features_dict[(msg.datapath_id,key)]=(0,msg.ports[key].hw_addr)
         # sends lldp packets to all connected switches
-	for key in switch_connected: 
-		self.send_lldp(switch_connected[key])
+	for key in self.switch_connected: 
+		self.send_lldp(self.switch_connected[key])
 	
 
     @set_ev_cls(ofp_event.EventOFPStateChange, [DEAD_DISPATCHER])
