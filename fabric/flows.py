@@ -149,7 +149,8 @@ def flow_install_transit(dp):
     :type dp: `ryu.controller.controller.Datapath`
     '''
     mod = parser.OFPFlowMod(    datapath = dp,
-                                priority =1,
+                                priority = 1,
+                                table_id = 0,
                                 match = parser.OFPmatch(eth_type==0x88E7),
                                 instruction = compose(to_table=CORE_TABLE))
 
