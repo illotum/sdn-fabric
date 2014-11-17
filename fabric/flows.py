@@ -112,7 +112,6 @@ def flow_to_remote(dp, dl_dst, dpid):
     match = parser.OFPmatch(eth_dst = dl_dst)
     action = [ofp.OFPActionPushPbb(0x88E7), OFPActionSetField(eth_dst = dpid]
     mod = parser.OFPFlowMod(    datapath = dp,
-                                priority =1,
                                 match,
                                 instruction = compose(action,to_table=LOCAL_TABLE))
 
