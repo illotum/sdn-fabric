@@ -16,7 +16,8 @@ class Network(object):
         self.ip_to_mac={}
         self.mac_to_port= {} #for every MAC address=>{dpid,port_no}
         #Used to Update ports as given when a port event status changes
-
+	list_of_paths_between_core_links=[]
+	
     def mac_of_ip(self, ip):
         """
         Returns mac of a given ip
@@ -52,7 +53,7 @@ class Network(object):
 
     def get_path(src_dpid,dst_dpid):
     #Gets the list of all the paths between core links
-        pass
+    	
 
 
 class TopologyDB(dict):
