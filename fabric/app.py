@@ -131,6 +131,7 @@ class NetworkManager(app_manager.RyuApp):
         :type ev: `ofp_event.EventOFPPortStatus`
         """
         msg = ev.msg
+        datapath=msg.datapath
         reason = msg.reason
         port_no = msg.desc.port_no
         
@@ -138,7 +139,7 @@ class NetworkManager(app_manager.RyuApp):
             self.logger.info("port added %s", port_no)
             # self.lsdb[]
             for switch in self.switch_connected:
-            	packet = pack.create_lldp(dpid, port_no=1)
+            	send_lldp(datapath)
         elif reason == ofp.OFPPR_DELETE:
             self.logger.info("port deleted %s", port_no)
             # del self.lsdb[]
