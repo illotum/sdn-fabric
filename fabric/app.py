@@ -71,7 +71,9 @@ class NetworkManager(app_manager.RyuApp):
                   where datapath can be None if negotiation didn't
                   end successfully.
         """
-        
+        del switch_connected[ev.datapath] 
+        for key in switch_connected: 
+            self.send_lldp(key)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _handle_packet_in(self, ev):
