@@ -184,7 +184,7 @@ class NetworkManager(app_manager.RyuApp):
     	msg=fl.send_out_packet(datapath,pkt_lldp,ofp.OFPP_FLOOD)
     	datapath.send_msg(msg)
     	
-    def send_lldp_all(self):
+    def send_lldp_all():
         """
         Sends LLDP broadcast to all switches that are registered on the controller
                 
