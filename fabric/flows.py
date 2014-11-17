@@ -179,7 +179,7 @@ def flow_inbound(self,dp):
                                 instruction = compose(action,to_table=LOCAL_TABLE))
     dp.send_msg(mod)
 
-def send_out_packet(dp, pkt, out_port, in_port=OFPP_CONTROLLER):
+def send_out_packet(dp, pkt, out_port, in_port=ofp.OFPP_CONTROLLER):
     """
     Produces a message for a switch to send the provided
     packet out.
