@@ -137,7 +137,7 @@ def match_all(dp):
     match = parser.OFPMatch()
     actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,ofproto.OFPCML_NO_BUFFER)]
     mod = parser.OFPFlowMod(    datapath = dp,
-                                priority =0,table_id=DEF_TABLE
+                                priority =0,
                                 match = match,instructions=compose(actions))
     return mod
 
@@ -229,7 +229,7 @@ def add_flow(self, datapath, in_port, dst, actions):
 def install_default_flow(dp):
     """
     :param dp: datapath description
-    :type dp: `ryu.controller.controller.Datapath`
+    :type dp: `ryu.controller.controller.Datapath
     
     """
     match = parser.OFPMatch()
