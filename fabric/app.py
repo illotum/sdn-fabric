@@ -91,7 +91,7 @@ class NetworkManager(app_manager.RyuApp):
         msg=ev.msg
         pkt=packet.Packet(msg.data)
         datapath=msg.datapath
-        in_port=msg.in_port
+        in_port=msg.match['in_port']
         descr=pack.parse(msg.data,datapath.id,in_port)
         
         pkt_arp=pkt.get_protocol(arp.arp)
@@ -104,7 +104,7 @@ class NetworkManager(app_manager.RyuApp):
 		self.reply_to_arp(datapath.id,arp_dict)
 		return
 	
-	self.net.mac_to_port[descr["dl_src"]]=msg.in_port
+	self.net.mac_to_port[descr["dl_src"]]=in_port
         
         dst=descr["dl_dst"]
         if dst in self.net.mac_to_port:
@@ -116,9 +116,9 @@ class NetworkManager(app_manager.RyuApp):
 
         # install a flow to avoid packet_in next time
         if out_port != ofp.OFPP_FLOOD:
-            self.add_flow(datapath, msg.in_port, dst, actions)
+            self.add_flow(datapath, in_port, dst, actions)
 	   
-        out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id, in_port=msg.in_port,actions=actions)
+        out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id, in_port=in_port,actions=actions)
 	datapath.send_msg(out)
 
         
