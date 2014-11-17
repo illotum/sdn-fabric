@@ -118,7 +118,8 @@ class NetworkManager(app_manager.RyuApp):
 		return
 	
 	
-        
+        dst=descr["dl_src"]
+        self.net.mac_to_port[datapath.id][dst] = in_port # saves mac to port entry in mac_to_port dictionary
         
 
         if dst in self.net.mac_to_port[datapath.id]:
