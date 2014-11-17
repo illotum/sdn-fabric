@@ -31,7 +31,6 @@ class NetworkManager(app_manager.RyuApp):
 
 	self.port_list={}
 	self.switch_connected={}
-	
 	self.lsdb={}
 	
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
