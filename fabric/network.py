@@ -66,8 +66,9 @@ class TopologyDB(dict):
     """
     def spf():
         '''
-        Returns nothing
         It stores a table of self_paths-> {(src,dst)=>[(dpid,port_no),(),()]}
+        
+        returns a list of src,dst=> dpid,port_no
         '''
         neighbourTable = self.neighbour_discovery(lsdb)
 		for i in neighbourTable.keys():
