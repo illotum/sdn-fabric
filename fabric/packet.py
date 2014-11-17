@@ -162,7 +162,7 @@ def parse(data, dpid_src, port_src):
     
     descr["dl_src"] = pkt_eth.src
     descr["dl_dst"] = pkt_eth.dst
-    descr["ethertype"] = pkt_eth.opcode
+    descr["ethertype"] = pkt_eth.ethertype
     
     if descr["ethertype"] == 2054:            # If packet is ARP
         descr=parse_arp(descr,data)
