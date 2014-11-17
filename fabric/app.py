@@ -127,10 +127,9 @@ class NetworkManager(app_manager.RyuApp):
             descr=pack.parse_lldp(descr,msg.data)
             self.lsdb[(descr["dpid_src"],descr["port_src"])]=(2,descr["dpid_dst"])
 	    try:
-	        new_topology = self.topo.spf(self.lsdb)
-	   except:
-	   	pass
-
+	    	new_topology=self.topo.spf(self.lsbd)
+	    except:
+	    	pass
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)
     def _handle_port_status(self, ev):
         """
