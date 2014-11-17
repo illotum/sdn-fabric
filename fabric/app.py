@@ -184,5 +184,12 @@ class NetworkManager(app_manager.RyuApp):
     	msg=fl.send_out_packet(datapath,pkt_lldp,ofp.OFPP_FLOOD)
     	datapath.send_msg(msg)
     	
+    def send_lldp_all(self):
+        """
+        Sends LLDP broadcast to all switches that are registered on the controller
+                
+        """
+        for switch in self.switch_connected.keys(): # Every key is a DPID of the switch registered on the controller
+        	send_lldp(self.switch_connected[switch]) # Sending (flood) an LLDP packet for aech switch in the list. "self.switch_connected[switch]" returns a datapath object
     	
     
