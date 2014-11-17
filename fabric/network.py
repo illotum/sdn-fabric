@@ -3,7 +3,7 @@ This module contains everything related to network topology processing
 """
 import collections as coll
 import heapq
-from pqdict import PQDict
+from fabric.pqdict import PQDict
 
 Link = coll.namedtuple("Link", "dpid port_no")
 
