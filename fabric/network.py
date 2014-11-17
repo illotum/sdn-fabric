@@ -3,6 +3,7 @@ This module contains everything related to network topology processing
 """
 import collections as coll
 import heapq
+from pqdict import PQDict
 
 Link = coll.namedtuple("Link", "dpid port_no")
 
@@ -64,7 +65,7 @@ class TopologyDB(dict):
     """
     Topology graph with network related helpers
     """
-    def spf():
+    def spf(lsdb):
         '''
         It stores a table of self_paths-> {(src,dst)=>[(dpid,port_no),(),()]}
         
@@ -74,7 +75,8 @@ class TopologyDB(dict):
 		for i in neighbourTable.keys():
 			for j in neighbourTable.keys():
 				if i is not j:
-					self_paths[(i,j)]=shortestPath(neighbourTable,i,j)
+					self_paths[(i,j)]=self.shortestPath(neighbourTable,i,j)
+	return self_paths
 
     def get_all_core(self,lsdb,coreLinks=[]):
         """
@@ -161,4 +163,4 @@ class TopologyDB(dict):
 	    count+=1
 	return newPath
 		
-        return [k for k,v in self.items() if v[0] == self.P_CORE]
+        
