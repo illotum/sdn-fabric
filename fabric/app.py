@@ -29,7 +29,8 @@ class NetworkManager(app_manager.RyuApp):
         super(NetworkManager, self).__init__(*args, **kwargs)
         self.net = Network()  #: Init the Network instance
 
-	self.features_dict={}
+	self.port_list={}
+	self.switch_connected={}
 	
 	self.lsdb={}
 	
