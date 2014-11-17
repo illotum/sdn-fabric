@@ -110,7 +110,7 @@ def flow_to_remote(dp, dl_dst, dpid):
     :rtype: `parser.OFPFlowMod`
     '''
     match = parser.OFPmatch(eth_dst = dl_dst)
-    action = [ofp.OFPActionPushPbb(0x88E7), OFPActionSetField(pbb_cda = dpid]
+    action = [ofp.OFPActionPushPbb(0x88E7), OFPActionSetField(eth_dst = dpid]
     mod = parser.OFPFlowMod(    datapath = dp,
                                 priority =1,
                                 match,
