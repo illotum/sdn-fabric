@@ -11,8 +11,10 @@ from ryu.ofproto import ofproto_v1_4_parser as parser
 from ryu.lib.mac import haddr_to_bin
 
 from fabric.network import Network
+from fabric.network import TopologyDB as topo
 import fabric.packet as pack
 import fabric.flows as fl
+
 
 IDLE_TIMEOUT = 10  #: Timeout for dynamic flows
 DEF_PRI = 0
@@ -122,8 +124,12 @@ class NetworkManager(app_manager.RyuApp):
         
         pkt_lldp=pkt.get_protocol(lldp.lldp)
         if pkt_lldp:
-           descr=pack.parse_lldp(descr,msg.data)
-	   self.lsdb[(descr["dpid_src"],descr["port_src"])]=(2,descr["dpid_dst"])
+            descr=pack.parse_lldp(descr,msg.data)
+            self.lsdb[(descr["dpid_src"],descr["port_src"])]=(2,descr["dpid_dst"])
+	    try:
+	        new_topology = self.topo.spf(self.lsdb)
+	   except:
+	   	pass
 
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)
     def _handle_port_status(self, ev):
