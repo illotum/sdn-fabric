@@ -170,12 +170,12 @@ class NetworkManager(app_manager.RyuApp):
         :type pkt: dict
         """
         dl_dst, nl_dst, nl_src = pkt["dl_src"], pkt["nl_src"],pkt["nl_dst"]
-        dl_src = self.net.mac_of[nl_src]
+        dl_src = self.net.ip_to_mac[nl_src]
         out_port = dp.ofproto.OFPP_LOCAL
 
         pkt = create_arp( dl_src,dl_dst,nl_src,nl_dst)
 
-        send_out_packet(dp,pkt,out_port)
+        fl.send_out_packet(dp,pkt,out_port)
 
 
 
