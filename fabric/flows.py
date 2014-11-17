@@ -197,7 +197,19 @@ def send_out_packet(dp, pkt, out_port, in_port=OFPP_CONTROLLER):
     return msg
     
 def add_flow(self, datapath, in_port, dst, actions):
+        """
+        Add flow Adds a specific flow to a switch.
+        :param self: self object
+        :type self: object type
         
+        :param datapath: Datapath of switch(dpid)
+        :type datapath:`ryu.controller.controller.Datapath`
+        
+        :param in_port: Incoming port of message on the switch
+        :type in_port: int
+        
+        :param dst:
+        """
 
         match = datapath.ofproto_parser.OFPMatch(
             in_port=in_port, dl_dst=haddr_to_bin(dst))
