@@ -134,19 +134,26 @@ class NetworkManager(app_manager.RyuApp):
         """
         msg = ev.msg
         datapath=msg.datapath
+        dpid = datapath.id
         reason = msg.reason
         port_no = msg.desc.port_no
         
         if reason == ofp.OFPPR_ADD:
             self.logger.info("port added %s", port_no)
-            #Will flood an LLDP message from every switch connected (switch_features maintains this list). Packet_IN will handle the rest (will add it to the database)
-            for switch in self.switch_connected:
-            	send_lldp(datapath) 
-            	
+            send_lldp_all() #Will flood an LLDP message from every switch connected (switch_features maintains this list). Packet_IN will handle the rest (will add it to the database)
+
         elif reason == ofp.OFPPR_DELETE:
             self.logger.info("port deleted %s", port_no)
-            # del self.lsdb[]
             
+            port_type = lsdb[(dpid, port_no)][0] #Getting a type of the port that went down
+            
+            if port_type == 2: #If the port is a core port or a learning
+                del lsdb[dpid, port_no] # Deleting this port from the lsdb database
+                send_lldp_all() #Will flood an LLDP message from every switch connected in order to discover the topology again
+
+            elif port_type == 1:
+                del lsdb[dpid, port_no] # Deleting this port from the lsdb database. Since this is an EDGE port we don't need to fire another round of LLDP
+
         else:
             self.logger.info("Illeagal port state %s %s", port_no, reason)
 
