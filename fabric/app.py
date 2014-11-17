@@ -51,7 +51,7 @@ class NetworkManager(app_manager.RyuApp):
         """
         msg = ev.msg 
         datapath=msg.datapath 
-        fl.install_default_flow(datapath)  # installs default flows for openflow 1.4
+        fl.match_all(datapath)  # installs default flows for openflow 1.4
         port_list=msg.ports.keys()         # gets the list of ports from msg.ports dictionary
         port_list.remove(65534)            # removes the port connected to controller
         self.switch_connected[datapath.id]=datapath  # stores datapath id as key and datapath object as value
