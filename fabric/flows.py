@@ -208,7 +208,11 @@ def add_flow(self, datapath, in_port, dst, actions):
         :param in_port: Incoming port of message on the switch
         :type in_port: int
         
-        :param dst:
+        :param dst: Destination Mac Address
+        :type dst: String
+        
+        :param actions: An Action or list of Actions that will be perfomed on a suitable match in the flow mod table
+        :type actions: parser.OFPAction`
         """
 
         match = datapath.ofproto_parser.OFPMatch(
