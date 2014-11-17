@@ -139,7 +139,7 @@ def match_all(dp):
     mod = parser.OFPFlowMod(    datapath = dp,
                                 priority =0,
                                 match = match,instructions=compose(actions))
-    return mod
+    dp.send_msg(mod)
 
 
 def flow_install_transit(dp):
