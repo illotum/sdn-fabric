@@ -99,8 +99,8 @@ class NetworkManager(app_manager.RyuApp):
         in_port=msg.match['in_port']
         descr=pack.parse(msg.data,datapath.id,in_port)
         
-       
-        if descr['ethertype'] == 2054:
+        pkt_arp=pkt.get_protocol(arp.arp)
+        if pkt_arp:
             descr=pack.parse_arp(descr,msg.data)
 	    key=descr["nl_dst"]
 	    if key in self.net.ip_to_mac:
@@ -127,8 +127,8 @@ class NetworkManager(app_manager.RyuApp):
 	datapath.send_msg(out)
 
         
-        
-        if descr['ethertype'] == 35020:
+        pkt_lldp=pkt.get_protocol(lldp.lldp)
+        if pkt_lldp:
             descr=pack.parse_lldp(descr,msg.data)
             self.lsdb[(descr["dpid_src"],descr["port_src"])]=(2,descr["dpid_dst"])
 	    try:
