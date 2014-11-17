@@ -137,6 +137,8 @@ class NetworkManager(app_manager.RyuApp):
         if reason == ofp.OFPPR_ADD:
             self.logger.info("port added %s", port_no)
             # self.lsdb[]
+            for switch in self.switch_connected:
+            	packet = pack.create_lldp(dpid, port_no=1)
         elif reason == ofp.OFPPR_DELETE:
             self.logger.info("port deleted %s", port_no)
             # del self.lsdb[]
