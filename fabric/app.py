@@ -137,12 +137,14 @@ class NetworkManager(app_manager.RyuApp):
         
         if reason == ofp.OFPPR_ADD:
             self.logger.info("port added %s", port_no)
-            # self.lsdb[]
+            # self.lsdb[(datapath.id, port_no)] = ()
             for switch in self.switch_connected:
-            	send_lldp(datapath)
+            	send_lldp(datapath) #Will flood an LLDP message from every switch connected (switch_features maintains this list). Packet_IN will handle the rest (will add it to the database)
+            	
         elif reason == ofp.OFPPR_DELETE:
             self.logger.info("port deleted %s", port_no)
             # del self.lsdb[]
+            
         else:
             self.logger.info("Illeagal port state %s %s", port_no, reason)
 
