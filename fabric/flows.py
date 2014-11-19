@@ -128,7 +128,7 @@ def match_all(dp):
 
     :param dp: datapath description
     :type dp: `ryu.controller.controller.Datapath`
-    
+
     :return: mod
     :type: parser.OFPFlowMod
 
@@ -197,22 +197,22 @@ def send_out_packet(dp, pkt, out_port, in_port=ofp.OFPP_CONTROLLER):
 
     msg= parser.OFPPacketOut(datapath=dp, buffer_id=ofp.OFP_NO_BUFFER, in_port=in_port,actions=actions,data=pkt)
     return msg
-    
+
 def add_flow(self, datapath, in_port, dst, actions):
         """
         Add flow Adds a specific flow to a switch.
         :param self: self object
         :type self: object type
-        
+
         :param datapath: Datapath of switch(dpid)
         :type datapath:`ryu.controller.controller.Datapath`
-        
+
         :param in_port: Incoming port of message on the switch
         :type in_port: int
-        
+
         :param dst: Destination Mac Address
         :type dst: String
-        
+
         :param actions: An Action or list of Actions that will be perfomed on a suitable match in the flow mod table
         :type actions: parser.OFPAction`
         """
@@ -225,6 +225,12 @@ def add_flow(self, datapath, in_port, dst, actions):
             command=ofp.OFPFC_ADD, idle_timeout=0, hard_timeout=0,
             priority=ofp.OFP_DEFAULT_PRIORITY,
             flags=ofp.OFPFF_SEND_FLOW_REM, actions=actions)
-        datapath.send_msg(mod)    
+        datapath.send_msg(mod)
 
+def install_default_flow(dp):
+    match = parser.OFPMatch()
+    actions = [parser.OFPActionOutput(ofp.OFPP_CONTROLLER, ofp.OFPCML_NO_BUFFER)]
+    inst = [parser.OFPInstructionActions(ofp.OFPIT_APPLY_ACTIONS, actions)]
+    mod = parser.OFPFlowMod(datapath=dp, priority=0, match=match, instructions=inst, table_id=0)
+    dp.send_msg(mod)
 
