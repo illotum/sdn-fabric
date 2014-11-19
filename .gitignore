@@ -58,3 +58,6 @@ target/
 
 # Rope
 .ropeproject
+
+# OSX
+.DS_Store
