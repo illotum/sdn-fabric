@@ -12,7 +12,8 @@ from ryu.lib.mac import haddr_to_bin
 import struct
 
 
-def create_lldp(dpid, port_no=1):  #Default Port_no is 1 as we are flooding lldp packets
+# Default Port_no is 1 as we are flooding lldp packets
+def create_lldp(dpid, port_no=1):
     '''
     Creates an LLDP broadcast packet
 
@@ -29,8 +30,8 @@ def create_lldp(dpid, port_no=1):  #Default Port_no is 1 as we are flooding lldp
     pkt = packet.Packet()           # creating empty pkt
     dst = 'FF:FF:FF:FF:FF:FF'
     ethertype = ether.ETH_TYPE_LLDP
-    eth_pkt = ethernet.ethernet(dst, dpid, ethertype)  
-    pkt.add_protocol(eth_pkt)      # Adding Ethernet 
+    eth_pkt = ethernet.ethernet(dst, dpid, ethertype)
+    pkt.add_protocol(eth_pkt)      # Adding Ethernet
     tlv_chassis_id = lldp.ChassisID(subtype=lldp.ChassisID.SUB_MAC_ADDRESS,
                                     chassis_id=haddr_to_bin(dpid))
 
@@ -40,13 +41,13 @@ def create_lldp(dpid, port_no=1):  #Default Port_no is 1 as we are flooding lldp
     tlv_end = lldp.End()
     tlvs = (tlv_chassis_id, tlv_port_id, tlv_ttl, tlv_end)
     lldp_pkt = lldp.lldp(tlvs)
-    pkt.add_protocol(lldp_pkt)   #Adding llDP
+    pkt.add_protocol(lldp_pkt)  # Adding llDP
     pkt.serialize()             # Converting into 'bytearray'
     data = pkt.data
     return data
 
 
-def create_arp( dl_src,dl_dst,nl_src,nl_dst):
+def create_arp(dl_src, dl_dst, nl_src, nl_dst):
     '''
     Creates an ARP reply packet
 
@@ -66,24 +67,24 @@ def create_arp( dl_src,dl_dst,nl_src,nl_dst):
     :rtype: `bytearray`
     '''
     pkt = packet.Packet()
-    pkt.add_protocol(ethernet.ethernet(ethertype=2054,          #Ethertype 2054 is for ARP 
-                                               dst=dl_dst,
-                                               src=dl_src))
+    pkt.add_protocol(ethernet.ethernet(ethertype=2054,  # Ethertype 2054 is for ARP
+                                       dst=dl_dst,
+                                       src=dl_src))
     pkt.add_protocol(arp.arp(opcode=arp.ARP_REPLY,
-                                     src_mac=dl_src,
-                                     src_ip=nl_src,
-                                     dst_mac=dl_dst,
-                                     dst_ip=nl_dst))
+                             src_mac=dl_src,
+                             src_ip=nl_src,
+                             dst_mac=dl_dst,
+                             dst_ip=nl_dst))
     pkt.serialize()
     return pkt
 
 
-def parse_lldp(descr,data):
+def parse_lldp(descr, data):
     '''
     Parses LLDP headers and adds them to provided dict
-    
+
     dpid_dst: Switch who sent(flood) lldp packet
-    
+
 
     :param data: binary of a packet to parse
     :type data: bitearray
@@ -95,18 +96,18 @@ def parse_lldp(descr,data):
               of "dpid" and "port_no" form LLDP
     :rtype: dict
     '''
-    
+
     pkt = packet.Packet(data)
     pkt_lldp = pkt.get_protocol(lldp.lldp)
     s = str(pkt_lldp.tlvs[0].chassis_id)
-    dpid_dst = struct.unpack("!Q",'\x00\x00' + s)[0]
-    
+    dpid_dst = struct.unpack("!Q", '\x00\x00' + s)[0]
+
     descr["dpid_dst"] = dpid_dst
-    
+
     return descr
 
 
-def parse_arp(descr,data):
+def parse_arp(descr, data):
     '''
     Parses ARP headers and adds them to provided dict
 
@@ -124,11 +125,11 @@ def parse_arp(descr,data):
     '''
     pkt = packet.Packet(data)
     pkt_arp = pkt.get_protocol(arp.arp)
-    
+
     descr["nl_src"] = pkt_arp.src_ip
     descr["nl_dst"] = pkt_arp.dst_ip
     descr["opcode"] = pkt_arp.opcode
-    
+
     return descr
 
 
@@ -143,7 +144,7 @@ def parse(data, dpid_src, port_src):
     :returns: dictionary of all important headers parsed
               with "dl_src" and "dl_dst" at minimum.
     :rtype: dict
-    
+
     dpid_src: switch from which controller received packet
     port_src: switch port on which packet was received
     dl_src: Data link layer source address (MAC)
@@ -153,22 +154,22 @@ def parse(data, dpid_src, port_src):
     opcode: int :Define type of ARP Request or Reply
     ethertype: int : Define type of protocol (ARP or LLDP)
     '''
-    descr = { "dpid_src" : '', "port_src" : '', "dl_src" : '', "dl_dst" : '' , "nl_src" : '', "nl_dst" : '' , "dpid_dst" : '' , "opcode" : '' , "ethertype" : ''}
+    descr = {"dpid_src": '', "port_src": '', "dl_src": '', "dl_dst": '',
+             "nl_src": '', "nl_dst": '', "dpid_dst": '', "opcode": '', "ethertype": ''}
     descr["dpid_src"] = dpid_src
     descr["port_src"] = port_src
-    
+
     pkt = packet.Packet(data)
     pkt_eth = pkt.get_protocol(ethernet.ethernet)
-    
+
     descr["dl_src"] = pkt_eth.src
     descr["dl_dst"] = pkt_eth.dst
     descr["ethertype"] = pkt_eth.ethertype
-    
+
     if descr["ethertype"] == 2054:            # If packet is ARP
-        descr=parse_arp(descr,data)
-    
+        descr = parse_arp(descr, data)
+
     elif descr["ethertype"] == 35020:       # If packet is LLDP
-        descr=parse_lldp(descr,data)
-    
+        descr = parse_lldp(descr, data)
+
     return descr
-   

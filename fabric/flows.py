@@ -46,7 +46,7 @@ def dpid_to_mac(dpid):
     :returns: 48bits of MAC address
     :rtype: int
     """
-    mac_addr = dpid&(2**48-1)
+    mac_addr = dpid & (2 ** 48 - 1)
     return mac_addr
 
 
@@ -74,20 +74,20 @@ def flow_to_port(dp, dl_dst, out_port, table=LOCAL_TABLE):
     actions = [parser.OFPActionOutput(out_port)]
     ofp = datapath.ofproto
     parser = datapath.ofproto_parser
-    inst = [dp.OFPInstructionActions(ofp.OFPIT_APPLY_ACTION,actions)]
+    inst = [dp.OFPInstructionActions(ofp.OFPIT_APPLY_ACTION, actions)]
 
     if table is LOCAL_TABLE:
-        mod = parser.OFPFlowMod(datapath = dp,
-                                priority =5,
-                                match = parser.OFPmatch(eth_dst=dl_dst),
+        mod = parser.OFPFlowMod(datapath=dp,
+                                priority=5,
+                                match=parser.OFPmatch(eth_dst=dl_dst),
                                 instruction=inst,
-                                table_id=1 )
+                                table_id=1)
     else:
-        mod = parser.OFPFlowMod(datapath = dp ,
-                                priority =5,
-                                match = parser.OFPmatch(eth_dst=dl_dst),
+        mod = parser.OFPFlowMod(datapath=dp,
+                                priority=5,
+                                match=parser.OFPmatch(eth_dst=dl_dst),
                                 instruction=inst,
-                                table_id=2 )
+                                table_id=2)
 
     dp.send_msg(mod)
 
@@ -109,10 +109,11 @@ def flow_to_remote(dp, dl_dst, dpid):
     :returns: FlowMod to send to the switch
     :rtype: `parser.OFPFlowMod`
     '''
-    action = [ofp.OFPActionPushPbb(0x88E7), OFPActionSetField(eth_dst = dpid]
-    mod = parser.OFPFlowMod(    datapath = dp,
-                                match = parser.OFPmatch(eth_dst = dl_dst),
-                                instruction = compose(action,to_table=LOCAL_TABLE),
+    action = [ofp.OFPActionPushPbb(0x88E7), OFPActionSetField(eth_dst=dpid]
+    mod=parser.OFPFlowMod(datapath=dp,
+                                match=parser.OFPmatch(eth_dst=dl_dst),
+                                instruction=compose(
+                                    action, to_table=LOCAL_TABLE),
                                 table_id=1)
 
 def match_all(dp):
@@ -134,11 +135,12 @@ def match_all(dp):
 
     '''
 
-    match = parser.OFPMatch()
-    actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,ofproto.OFPCML_NO_BUFFER)]
-    mod = parser.OFPFlowMod(    datapath = dp,
-                                priority =0,
-                                match = match,instructions=compose(actions))
+    match=parser.OFPMatch()
+    actions=[parser.OFPActionOutput(
+        ofproto.OFPP_CONTROLLER, ofproto.OFPCML_NO_BUFFER)]
+    mod=parser.OFPFlowMod(datapath=dp,
+                                priority=0,
+                                match=match, instructions=compose(actions))
     dp.send_msg(mod)
 
 
@@ -148,16 +150,16 @@ def flow_install_transit(dp):
     :param dp: datapath description
     :type dp: `ryu.controller.controller.Datapath`
     '''
-    mod = parser.OFPFlowMod(    datapath = dp,
-                                priority = 1,
-                                table_id = 0,
-                                match = parser.OFPmatch(eth_type==0x88E7),
-                                instruction = compose(to_table=CORE_TABLE))
+    mod=parser.OFPFlowMod(datapath=dp,
+                                priority=1,
+                                table_id=0,
+                                match=parser.OFPmatch(eth_type == 0x88E7),
+                                instruction=compose(to_table=CORE_TABLE))
 
     dp.send_msg(mod)
 
 
-def flow_inbound(self,dp):
+def flow_inbound(self, dp):
     '''
     Produces a FlowMod that will match PBB encapsulated flows
     destined to this switch and decapsulates them before switching
@@ -169,14 +171,15 @@ def flow_inbound(self,dp):
     :returns: flow mod message
     :rtype: `parser.OFPFlowMod`
     '''
-    # Has to be called after checking if a message received is destined to itself
+    # Has to be called after checking if a message received is destined to
+    # itself
     self.ethertype=0x88E7
     match=parser.OFPmatch(eth_type=0x88E7)
     action=ofp.OFPActionPopPbb(self.ethertype)
-    mod = parser.OFPFlowMod(    datapath = dp,
-                                priority =1,
+    mod=parser.OFPFlowMod(datapath=dp,
+                                priority=1,
                                 match,
-                                instruction = compose(action,to_table=LOCAL_TABLE))
+                                instruction=compose(action, to_table=LOCAL_TABLE))
     dp.send_msg(mod)
 
 def send_out_packet(dp, pkt, out_port, in_port=ofp.OFPP_CONTROLLER):
@@ -193,44 +196,46 @@ def send_out_packet(dp, pkt, out_port, in_port=ofp.OFPP_CONTROLLER):
     :returns: packet out message
     :rtype: `parser.OFPPacketOut`
     """
-    actions = [parser.OFPActionOutput(out_port)]
+    actions=[parser.OFPActionOutput(out_port)]
 
-    msg= parser.OFPPacketOut(datapath=dp, buffer_id=ofp.OFP_NO_BUFFER, in_port=in_port,actions=actions,data=pkt)
+    msg=parser.OFPPacketOut(
+        datapath=dp, buffer_id=ofp.OFP_NO_BUFFER, in_port=in_port, actions=actions, data=pkt)
     return msg
 
 def add_flow(self, datapath, in_port, dst, actions):
-        """
-        Add flow Adds a specific flow to a switch.
-        :param self: self object
-        :type self: object type
+    """
+    Add flow Adds a specific flow to a switch.
+    :param self: self object
+    :type self: object type
 
-        :param datapath: Datapath of switch(dpid)
-        :type datapath:`ryu.controller.controller.Datapath`
+    :param datapath: Datapath of switch(dpid)
+    :type datapath:`ryu.controller.controller.Datapath`
 
-        :param in_port: Incoming port of message on the switch
-        :type in_port: int
+    :param in_port: Incoming port of message on the switch
+    :type in_port: int
 
-        :param dst: Destination Mac Address
-        :type dst: String
+    :param dst: Destination Mac Address
+    :type dst: String
 
-        :param actions: An Action or list of Actions that will be perfomed on a suitable match in the flow mod table
-        :type actions: parser.OFPAction`
-        """
+    :param actions: An Action or list of Actions that will be perfomed on a suitable match in the flow mod table
+    :type actions: parser.OFPAction`
+    """
 
-        match = datapath.ofproto_parser.OFPMatch(
-            in_port=in_port, dl_dst=haddr_to_bin(dst))
+    match=datapath.ofproto_parser.OFPMatch(
+        in_port=in_port, dl_dst=haddr_to_bin(dst))
 
-        mod = datapath.ofproto_parser.OFPFlowMod(
-            datapath=datapath, match=match, cookie=0,
-            command=ofp.OFPFC_ADD, idle_timeout=0, hard_timeout=0,
-            priority=ofp.OFP_DEFAULT_PRIORITY,
-            flags=ofp.OFPFF_SEND_FLOW_REM, actions=actions)
-        datapath.send_msg(mod)
+    mod=datapath.ofproto_parser.OFPFlowMod(
+        datapath=datapath, match=match, cookie=0,
+        command=ofp.OFPFC_ADD, idle_timeout=0, hard_timeout=0,
+        priority=ofp.OFP_DEFAULT_PRIORITY,
+        flags=ofp.OFPFF_SEND_FLOW_REM, actions=actions)
+    datapath.send_msg(mod)
 
 def install_default_flow(dp):
-    match = parser.OFPMatch()
-    actions = [parser.OFPActionOutput(ofp.OFPP_CONTROLLER, ofp.OFPCML_NO_BUFFER)]
-    inst = [parser.OFPInstructionActions(ofp.OFPIT_APPLY_ACTIONS, actions)]
-    mod = parser.OFPFlowMod(datapath=dp, priority=0, match=match, instructions=inst, table_id=0)
+    match=parser.OFPMatch()
+    actions=[parser.OFPActionOutput(ofp.OFPP_CONTROLLER, ofp.OFPCML_NO_BUFFER)]
+    inst=[parser.OFPInstructionActions(ofp.OFPIT_APPLY_ACTIONS, actions)]
+    mod=parser.OFPFlowMod(
+        datapath=dp, priority=0, match=match, instructions=inst, table_id=0)
     dp.send_msg(mod)
 
