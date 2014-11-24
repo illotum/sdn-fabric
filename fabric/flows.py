@@ -39,7 +39,7 @@ def compose(actions=[], to_table=0):
     return inst
 
 
-def dpid_to_mac(dpid):
+def int_to_mac(dpid):
     """
     Cuts only lowest 48 bits of an integer
 
@@ -58,13 +58,14 @@ def flow_to_port(dp, dl_dst, out_port, table=T_LOCAL):
     Creates a FlowMod structure that matches destination MAC and
     send packet out of a port.
 
-    By default is used for local switching, but table may be set to
+    By default it is used for local switching, but table may be set to
     `fabric.flow.T_TRANSIT` for transit rules.
 
     :param dp: switch description
     :type dp: `ryu.controller.controller.Datapath`
 
-    :param dl_dst: destination MAC address
+    :param dl_dst: destination MAC address; any int provided will
+                   be cut to lowest 48 bits
     :type dl_dst: int
 
     :param out_port: output port
@@ -74,25 +75,15 @@ def flow_to_port(dp, dl_dst, out_port, table=T_LOCAL):
     :rtype: `parser.OFPFlowMod`
     '''
 
-    actions = [parser.OFPActionOutput(out_port)]
-    ofp = datapath.ofproto
-    parser = datapath.ofproto_parser
-    inst = [dp.OFPInstructionActions(ofp.OFPIT_APPLY_ACTION, actions)]
+    inst = compose([parser.OFPActionOutput(out_port)])
+    mac = int_to_mac(dl_dst)
+    msg = parser.OFPFlowMod(datapath=dp,
+                            priority=P_LOW,
+                            match=parser.OFPmatch(eth_dst=mac),
+                            instruction=inst,
+                            table_id=table)
 
-    if table is T_LOCAL:
-        mod = parser.OFPFlowMod(datapath=dp,
-                                priority=5,
-                                match=parser.OFPmatch(eth_dst=dl_dst),
-                                instruction=inst,
-                                table_id=1)
-    else:
-        mod = parser.OFPFlowMod(datapath=dp,
-                                priority=5,
-                                match=parser.OFPmatch(eth_dst=dl_dst),
-                                instruction=inst,
-                                table_id=2)
-
-    dp.send_msg(mod)
+    return msg
 
 
 def flow_to_remote(dp, dl_dst, dpid):
