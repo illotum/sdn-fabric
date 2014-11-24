@@ -142,7 +142,6 @@ def flow_default(dp, table, to_table=0):
     :return: message to send to the switch
     :type: `parser.OFPFlowMod`
     '''
-
     if to_table:
         actions = []
     else:
@@ -157,24 +156,26 @@ def flow_default(dp, table, to_table=0):
     return msg
 
 
-def flow_install_transit(dp):
+def flow_to_transit(dp):
     '''
-    Creates a FlowMod structure that matches PBB packets and switches them to a CORE table.
+    Creates a FlowMod structure that matches PBB packets and switches
+    them to TRANSIT table.
+
     :param dp: datapath description
     :type dp: `ryu.controller.controller.Datapath`
     '''
-    mod=parser.OFPFlowMod(datapath=dp,
-                                priority=1,
-                                table_id=0,
-                                match=parser.OFPmatch(eth_type == 0x88E7),
-                                instruction=compose(to_table=CORE_TABLE))
+    mod = parser.OFPFlowMod(datapath=dp,
+                            priority=P_LOW,
+                            table_id=T_DEFAULT,
+                            match=parser.OFPmatch(eth_type == 0x88E7),
+                            instruction=compose(to_table=T_TRANSIT))
 
-    dp.send_msg(mod)
+    return msg
 
 
-def flow_inbound(self, dp):
+def flow_inbound(dp):
     '''
-    Produces a FlowMod that will match PBB encapsulated flows
+    Produces a FlowMod that matches PBB encapsulated flows
     destined to this switch and decapsulates them before switching
     to LOCAL table
 
@@ -184,8 +185,6 @@ def flow_inbound(self, dp):
     :returns: flow mod message
     :rtype: `parser.OFPFlowMod`
     '''
-    # Has to be called after checking if a message received is destined to
-    # itself
     self.ethertype=0x88E7
     match=parser.OFPmatch(eth_type=0x88E7)
     action=ofp.OFPActionPopPbb(self.ethertype)
