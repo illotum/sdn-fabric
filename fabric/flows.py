@@ -1,6 +1,7 @@
 """
-This module containes pure functions to help with
-creating flow table entries.
+This module containes pure functions to help with creating flow table entries.
+
+No to switch communication is supposed to reside in here.
 """
 
 from ryu.ofproto import ofproto_v1_4 as ofp
@@ -15,7 +16,7 @@ P_HIGH = 20
 
 def compose(actions=[], to_table=0):
     """
-    Compose instructions set from given entries
+    Compose instructions set from given entries.
 
     :param actions: actions to perform after match
     :type actions: list of `parser.OFPAction`
@@ -27,7 +28,6 @@ def compose(actions=[], to_table=0):
     :returns: instructions for `parser.OFPFlowMod`
     :rtype: list of `parser.OFPInstruction`
     """
-
     inst = []
     if actions:
         inst.append(
@@ -41,7 +41,7 @@ def compose(actions=[], to_table=0):
 
 def int_to_mac(dpid):
     """
-    Cuts only lowest 48 bits of an integer
+    Cut only lowest 48 bits of an integer.
 
     :param dpid: 64bits of switch id
     :type dpid: int
@@ -55,8 +55,8 @@ def int_to_mac(dpid):
 
 def flow_to_port(dp, dl_dst, out_port, table=T_LOCAL):
     '''
-    Creates a FlowMod structure that matches destination MAC and
-    send packet out of a port.
+    Create a FlowMod structure that matches destination MAC and
+    sends packet out of a port.
 
     By default it is used for local switching, but table may be set to
     `fabric.flow.T_TRANSIT` for transit rules.
@@ -91,7 +91,7 @@ def flow_to_port(dp, dl_dst, out_port, table=T_LOCAL):
 
 def flow_to_remote(dp, dl_dst, dpid):
     '''
-    Creates a FlowMod structure that matches destination MAC and
+    Create a FlowMod structure that matches destination MAC and
     encapsulates frame in PBB before switching to a TRANSIT table.
 
     :param dp: switch description
@@ -124,7 +124,7 @@ def flow_to_remote(dp, dl_dst, dpid):
 def flow_default(dp, table, to_table=0):
 
     '''
-    Produces an default rule tha will be matching anything before applying an
+    Produce an default rule that will be matching anything before applying an
     action and/or switching table.
 
     Default behaviour is to send traffic to the controller, but if to_table
@@ -158,7 +158,7 @@ def flow_default(dp, table, to_table=0):
 
 def flow_to_transit(dp):
     '''
-    Creates a FlowMod structure that matches PBB packets and switches
+    Create a FlowMod structure that matches PBB packets and switches
     them to TRANSIT table.
 
     :param dp: datapath description
@@ -175,7 +175,7 @@ def flow_to_transit(dp):
 
 def flow_inbound(dp):
     '''
-    Produces a FlowMod that matches PBB encapsulated flows
+    Produce a FlowMod that matches PBB encapsulated flows
     destined to this switch and decapsulates them before switching
     to LOCAL table
 
@@ -196,7 +196,7 @@ def flow_inbound(dp):
 
 def send_out_packet(dp, pkt, out_port, in_port=ofp.OFPP_CONTROLLER):
     """
-    Produces a message for a switch to send the provided
+    Produce a message for a switch to send the provided
     packet out.
 
     :param dp: datapath description
