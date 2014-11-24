@@ -1,21 +1,22 @@
 """
-This module containes pure functions to parse and craft packets.
+This module contains pure functions to parse and craft packets.
 """
 
+from ryu.ofproto import ofproto_v1_4 as ofp
+from ryu.ofproto import ofproto_v1_4_parser as parser
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import arp
 from ryu.lib.packet import lldp
-from ryu.ofproto import ether
+from ryu.ofproto import ether as ethertypes
 from ryu.lib.mac import haddr_to_bin
-
 import struct
+import fabric.flows as fl
 
 
-# Default Port_no is 1 as we are flooding lldp packets
-def create_lldp(dpid, port_no=1):
+def create_lldp(dpid, port_no=ofp.OFPP_FLOOD):
     '''
-    Creates an LLDP broadcast packet
+    Creates an LLDP broadcast packet.
 
     :param dpid: 64bit switch id
     :type dpid: int
@@ -27,24 +28,21 @@ def create_lldp(dpid, port_no=1):
     :rtype: `bytearray`
     '''
 
-    pkt = packet.Packet()           # creating empty pkt
-    dst = 'FF:FF:FF:FF:FF:FF'
-    ethertype = ether.ETH_TYPE_LLDP
-    eth_pkt = ethernet.ethernet(dst, dpid, ethertype)
-    pkt.add_protocol(eth_pkt)      # Adding Ethernet
-    tlv_chassis_id = lldp.ChassisID(subtype=lldp.ChassisID.SUB_MAC_ADDRESS,
-                                    chassis_id=haddr_to_bin(dpid))
-
-    tlv_port_id = lldp.PortID(subtype=lldp.PortID.SUB_INTERFACE_NAME,
-                              port_id=str(port_no))
-    tlv_ttl = lldp.TTL(ttl=2)
-    tlv_end = lldp.End()
-    tlvs = (tlv_chassis_id, tlv_port_id, tlv_ttl, tlv_end)
+    pkt = packet.Packet()  # creating empty pkt
+    dst, src = lldp.LLDP_MAC_NEAREST_BRIDGE  # Singlehop LLDP multicast
+    src = fl.int_to_mac(dpid)
+    ethertype = ethertypes.ETH_TYPE_LLDP
+    eth_pkt = ethernet.ethernet(dst, src, ethertype)
+    pkt.add_protocol(eth_pkt)  # Adding Ethernet
+    tlvs = (lldp.ChassisID(subtype=lldp.ChassisID.SUB_LOCALLY_ASSIGNED,
+                           chassis_id=str(dpid)),
+            lldp.PortID(subtype=lldp.PortID.SUB_INTERFACE_NAME,
+                        port_id=str(port_no)),
+            lldp.TTL(1),
+            lldp.End())
     lldp_pkt = lldp.lldp(tlvs)
     pkt.add_protocol(lldp_pkt)  # Adding llDP
-    pkt.serialize()             # Converting into 'bytearray'
-    data = pkt.data
-    return data
+    return pkt.serialize()
 
 
 def create_arp(dl_src, dl_dst, nl_src, nl_dst):
