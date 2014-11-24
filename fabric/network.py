@@ -1,7 +1,7 @@
 """
 This module contains everything related to network topology processing
 """
-import collections as coll
+from collections import defaultdict
 import heapq
 from fabric.pqdict import PQDict
 
@@ -14,34 +14,31 @@ class Network(object):
 
     def __init__():
         self.topo = TopologyDB()
-        self.ip_to_mac = {}
-        self.mac_to_port = {}  # for every MAC address=>{dpid,port_no}
-        # Used to Update ports as given when a port event status changes
+        self.ip_to_mac = defaultdict(None)  # IP => MAC
+        self.mac_to_port = defaultdict(None)  # MAC => (dpid,port_no)
         list_of_paths_between_core_links = []
 
     def mac_of_ip(self, ip):
         """
-        Returns mac of a given ip
+        Returns mac of a given IP
 
-        :param ip: 32b IP for a lookup
-        :type ip: int
+        :param ip: IP for a lookup
+        :type ip: str
 
-        :returns: 48b MAC
-        :rtype: int
+        :returns: associated MAC address or None
+        :rtype: str
         """
         return self.ip_to_mac[ip]
 
     def port_of_mac(self, mac):
         """
-        Returns dpid, port of a given Mac
-        :param self: Self
-        :type self: class object
+        Returns dpid, port of a given MAC
 
-        :param mac: mac address who's port no we wish to find
-        :type mac: string
+        :param mac: MAC for a lookup
+        :type mac: str
 
-        :returns: integer port number
-        :rtype:int
+        :returns: dpid and port number
+        :rtype: (int, int)
         """
         return self.mac_to_port[mac]
 
