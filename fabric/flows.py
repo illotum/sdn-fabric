@@ -8,6 +8,9 @@ from ryu.ofproto import ofproto_v1_4_parser as parser
 DEF_TABLE = 0
 TRANSIT_TABLE = 1
 LOCAL_TABLE = 2
+P_DEFFAULT = 0
+P_LOW = 10
+P_HIGH = 20
 
 
 def compose(actions=[], to_table=0):
