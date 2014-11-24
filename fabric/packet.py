@@ -65,7 +65,7 @@ def create_arp(dl_src, dl_dst, nl_src, nl_dst):
     :rtype: `bytearray`
     '''
     pkt = packet.Packet()
-    pkt.add_protocol(ethernet.ethernet(ethertype=2054,  # Ethertype 2054 is for ARP
+    pkt.add_protocol(ethernet.ethernet(ethertype=ethertypes.ETH_TYPE_ARP,
                                        dst=dl_dst,
                                        src=dl_src))
     pkt.add_protocol(arp.arp(opcode=arp.ARP_REPLY,
@@ -73,8 +73,7 @@ def create_arp(dl_src, dl_dst, nl_src, nl_dst):
                              src_ip=nl_src,
                              dst_mac=dl_dst,
                              dst_ip=nl_dst))
-    pkt.serialize()
-    return pkt
+    return pkt.serialize()
 
 
 def parse_lldp(descr, data):
