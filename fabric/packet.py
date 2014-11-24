@@ -16,7 +16,7 @@ import fabric.flows as fl
 
 def create_lldp(dpid, port_no=ofp.OFPP_FLOOD):
     '''
-    Creates an LLDP broadcast packet.
+    Create an LLDP broadcast packet.
 
     :param dpid: 64bit switch id
     :type dpid: int
@@ -47,19 +47,19 @@ def create_lldp(dpid, port_no=ofp.OFPP_FLOOD):
 
 def create_arp(dl_src, dl_dst, nl_src, nl_dst):
     '''
-    Creates an ARP reply packet
+    Create an ARP reply packet.
 
     :param dl_src: 48bit MAC address
-    :type dl_src: int
+    :type dl_src: str
 
     :param dl_dst: 48bit MAC address
-    :type dl_dst: int
+    :type dl_dst: str
 
     :param nl_src: 32bit IP address
-    :type nl_src: int
+    :type nl_src: str
 
     :param nl_dst: 32bit IP address
-    :type nl_dst: int
+    :type nl_dst: str
 
     :returns: binary representation of ARP packet
     :rtype: `bytearray`
@@ -78,10 +78,10 @@ def create_arp(dl_src, dl_dst, nl_src, nl_dst):
 
 def parse_lldp(data, headers={}):
     '''
-    Parses LLDP headers and adds them to provided dict
+    Parse LLDP headers and adds them to provided dict.
 
     :param data: binary of a packet to parse
-    :type data: bitearray
+    :type data: `bytearray`
 
     :param headers: parsed headers
     :type headers: dict
@@ -100,12 +100,12 @@ def parse_lldp(data, headers={}):
     return headers
 
 
-def parse_arp(descr, data):
+def parse_arp(data, headers={}):
     '''
-    Parses ARP headers and adds them to provided dict
+    Parse ARP headers and add them to provided dict.
 
     :param data: binary of a packet to parse
-    :type data: bitearray
+    :type data: `bytearray`
 
     :param headers: parsed headers
     :type headers: dict
@@ -119,33 +119,24 @@ def parse_arp(descr, data):
     pkt = packet.Packet(data)
     pkt_arp = pkt.get_protocol(arp.arp)
 
-    descr["nl_src"] = pkt_arp.src_ip
-    descr["nl_dst"] = pkt_arp.dst_ip
-    descr["opcode"] = pkt_arp.opcode
+    headers["nl_src"] = pkt_arp.src_ip
+    headers["nl_dst"] = pkt_arp.dst_ip
+    headers["opcode"] = pkt_arp.opcode
 
-    return descr
+    return headers
 
 
-def parse(data, dpid_src, port_src):
+def parse(data):
     '''
-    Parses Ethernet headers and calls for additional parsing
+    Parse Ethernet headers and calls for additional parsing
     in case of ARP and LLDP.
 
     :param data: binary of a packet to parse
-    :type data: bitearray
+    :type data: `bytearray`
 
     :returns: dictionary of all important headers parsed
-              with "dl_src" and "dl_dst" at minimum.
+              with "dl_src" and "dl_dst" at minimum;
     :rtype: dict
-
-    dpid_src: switch from which controller received packet
-    port_src: switch port on which packet was received
-    dl_src: Data link layer source address (MAC)
-    dl_dst: Data link layer destination address (MAC)
-    nl_src: Network layer source address (IP)
-    nl_dst: Network layer destination address (IP)
-    opcode: int :Define type of ARP Request or Reply
-    ethertype: int : Define type of protocol (ARP or LLDP)
     '''
     descr = {"dpid_src": '', "port_src": '', "dl_src": '', "dl_dst": '',
              "nl_src": '', "nl_dst": '', "dpid_dst": '', "opcode": '', "ethertype": ''}
