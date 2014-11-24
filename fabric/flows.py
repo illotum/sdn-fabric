@@ -6,10 +6,11 @@ No to switch communication is supposed to reside in here.
 
 from ryu.ofproto import ofproto_v1_4 as ofp
 from ryu.ofproto import ofproto_v1_4_parser as parser
+from ryu.lib import addrconv
 T_DEFAULT = 0
 T_TRANSIT = 1
 T_LOCAL = 2
-P_DEFFAULT = 0
+P_DEFAULT = 0
 P_LOW = 10
 P_HIGH = 20
 
@@ -41,16 +42,16 @@ def compose(actions=[], to_table=0):
 
 def int_to_mac(dpid):
     """
-    Cut only lowest 48 bits of an integer.
+    Cut only lowest 48 bits of an integer and transform it to string.
 
     :param dpid: 64bits of switch id
     :type dpid: int
 
-    :returns: 48bits of MAC address
-    :rtype: int
+    :returns: MAC address
+    :rtype: str
     """
     mac_addr = dpid & (2 ** 48 - 1)
-    return mac_addr
+    return addrconv.mac.bin_to_text(mac_addr)
 
 
 def flow_to_port(dp, dl_dst, out_port, table=T_LOCAL):
@@ -64,9 +65,8 @@ def flow_to_port(dp, dl_dst, out_port, table=T_LOCAL):
     :param dp: switch description
     :type dp: `ryu.controller.controller.Datapath`
 
-    :param dl_dst: destination MAC address; any int provided will
-                   be cut to lowest 48 bits
-    :type dl_dst: int
+    :param dl_dst: destination MAC address
+    :type dl_dst: str
 
     :param out_port: output port
     :type out_port: int
@@ -79,10 +79,9 @@ def flow_to_port(dp, dl_dst, out_port, table=T_LOCAL):
     '''
 
     inst = compose([parser.OFPActionOutput(out_port)])
-    mac = int_to_mac(dl_dst)
     msg = parser.OFPFlowMod(datapath=dp,
                             priority=P_LOW,
-                            match=parser.OFPmatch(eth_dst=mac),
+                            match=parser.OFPmatch(eth_dst=dl_dst),
                             instruction=inst,
                             table_id=table)
 
@@ -97,25 +96,23 @@ def flow_to_remote(dp, dl_dst, dpid):
     :param dp: switch description
     :type dp: `ryu.controller.controller.Datapath`
 
-    :param dl_dst: destination MAC address; any int provided will
-                   be cut to lowest 48 bits
-    :type dl_dst: int
+    :param dl_dst: destination MAC address
+    :type dl_dst: str
 
-    :param dpid: destination switch id to be set as dl_dst after encapsulation;
-                 any int provided will be cut to lowest 48 bits
+    :param dpid: destination switch id to be set as dl_dst after encapsulation
     :type out_port: int
 
     :returns: FlowMod to send to the switch
     :rtype: `parser.OFPFlowMod`
     '''
-    switch_mac, mac = int_to_mac(dpid), int_to_mac(dl_dst)
+    switch_mac = int_to_mac(dpid)
     actions = [
         parser.OFPActionPushPbb(0x88E7),
         parser.OFPActionSetField(eth_dst=switch_mac)
         ]
 
     msg = parser.OFPFlowMod(datapath=dp,
-                            match=parser.OFPmatch(eth_dst=mac),
+                            match=parser.OFPmatch(eth_dst=dl_dst),
                             instruction=compose(actions, to_table=T_TRANSIT),
                             table_id=T_LOCAL)
     return msg
@@ -150,7 +147,7 @@ def flow_default(dp, table, to_table=0):
 
     match = parser.OFPMatch()
     msg = parser.OFPFlowMod(datapath=dp,
-                            priority=P_DEFFAULT,
+                            priority=P_DEFAULT,
                             match=match,
                             instructions=compose(actions, to_table))
     return msg
@@ -164,7 +161,7 @@ def flow_to_transit(dp):
     :param dp: datapath description
     :type dp: `ryu.controller.controller.Datapath`
     '''
-    mod = parser.OFPFlowMod(datapath=dp,
+    msg = parser.OFPFlowMod(datapath=dp,
                             priority=P_LOW,
                             table_id=T_DEFAULT,
                             match=parser.OFPmatch(eth_type=0x88E7),
