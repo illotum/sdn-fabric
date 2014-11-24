@@ -5,9 +5,9 @@ creating flow table entries.
 
 from ryu.ofproto import ofproto_v1_4 as ofp
 from ryu.ofproto import ofproto_v1_4_parser as parser
-DEF_TABLE = 0
-TRANSIT_TABLE = 1
-LOCAL_TABLE = 2
+T_DEFAULT = 0
+T_TRANSIT = 1
+T_LOCAL = 2
 P_DEFFAULT = 0
 P_LOW = 10
 P_HIGH = 20
@@ -53,13 +53,13 @@ def dpid_to_mac(dpid):
     return mac_addr
 
 
-def flow_to_port(dp, dl_dst, out_port, table=LOCAL_TABLE):
+def flow_to_port(dp, dl_dst, out_port, table=T_LOCAL):
     '''
     Creates a FlowMod structure that matches destination MAC and
     send packet out of a port.
 
     By default is used for local switching, but table may be set to
-    `fabric.flow.TRANSIT_TABLE` for transit rules.
+    `fabric.flow.T_TRANSIT` for transit rules.
 
     :param dp: switch description
     :type dp: `ryu.controller.controller.Datapath`
@@ -79,7 +79,7 @@ def flow_to_port(dp, dl_dst, out_port, table=LOCAL_TABLE):
     parser = datapath.ofproto_parser
     inst = [dp.OFPInstructionActions(ofp.OFPIT_APPLY_ACTION, actions)]
 
-    if table is LOCAL_TABLE:
+    if table is T_LOCAL:
         mod = parser.OFPFlowMod(datapath=dp,
                                 priority=5,
                                 match=parser.OFPmatch(eth_dst=dl_dst),
@@ -116,7 +116,7 @@ def flow_to_remote(dp, dl_dst, dpid):
     mod=parser.OFPFlowMod(datapath=dp,
                                 match=parser.OFPmatch(eth_dst=dl_dst),
                                 instruction=compose(
-                                    action, to_table=LOCAL_TABLE),
+                                    action, to_table=T_LOCAL),
                                 table_id=1)
 
 def match_all(dp):
@@ -182,7 +182,7 @@ def flow_inbound(self, dp):
     mod=parser.OFPFlowMod(datapath=dp,
                                 priority=1,
                                 match,
-                                instruction=compose(action, to_table=LOCAL_TABLE))
+                                instruction=compose(action, to_table=T_LOCAL))
     dp.send_msg(mod)
 
 def send_out_packet(dp, pkt, out_port, in_port=ofp.OFPP_CONTROLLER):
