@@ -105,11 +105,12 @@ class NetworkManager(app_manager.RyuApp):
         # calls parse function and stores packet data in descr
         descr = pack.parse(msg.data, datapath.id, in_port)
 
-        pkt_arp = pkt.get_protocol(arp.arp)  # checks for arp packet
-        if pkt_arp:
+        #pkt_arp = pkt.get_protocol(arp.arp)  # checks for arp packet
+        #if pkt_arp:
+        if descr["ethertype"] == 2054:
             # calls parse_arp function to get source and destination ip
             # addresses
-            descr = pack.parse_arp(descr, msg.data)
+            #descr = pack.parse_arp(descr, msg.data)
 
             # saves ip to mac entry in ip_to_mac dictionary
             self.net.ip_to_mac[descr["nl_src"]] = descr["dl_src"]
@@ -135,7 +136,7 @@ class NetworkManager(app_manager.RyuApp):
         if dst in self.net.mac_to_port[datapath.id]:
             out_port = self.net.mac_to_port[datapath.id][dst]
         else:
-            out_port = ofproto.OFPP_FLOOD
+            out_port = ofp.OFPP_FLOOD
 
         actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
 
@@ -148,9 +149,10 @@ class NetworkManager(app_manager.RyuApp):
         datapath.send_msg(out)
 
         # lldp packet parsing
-        pkt_lldp = pkt.get_protocol(lldp.lldp)
-        if pkt_lldp:
-            descr = pack.parse_lldp(descr, msg.data)
+        #pkt_lldp = pkt.get_protocol(lldp.lldp)
+        #if pkt_lldp:
+        if descr["ethertype"] == 35020:
+            #descr = pack.parse_lldp(descr, msg.data)
             self.lsdb[(descr["dpid_src"], descr["port_src"])] = (
                 2, descr["dpid_dst"])  # 2 refers to core switches
             try:
