@@ -71,6 +71,9 @@ def flow_to_port(dp, dl_dst, out_port, table=T_LOCAL):
     :param out_port: output port
     :type out_port: int
 
+    :param table: flow table to install this rule in
+    :type table: int
+
     :returns: FlowMod to send to the switch
     :rtype: `parser.OFPFlowMod`
     '''
@@ -107,8 +110,8 @@ def flow_to_remote(dp, dl_dst, dpid):
     '''
     switch_mac, mac = int_to_mac(dpid), int_to_mac(dl_dst)
     actions = [
-        ofp.OFPActionPushPbb(0x88E7),
-        OFPActionSetField(eth_dst=switch_mac)
+        parser.OFPActionPushPbb(0x88E7),
+        parser.OFPActionSetField(eth_dst=switch_mac)
         ]
 
     msg = parser.OFPFlowMod(datapath=dp,
@@ -117,32 +120,41 @@ def flow_to_remote(dp, dl_dst, dpid):
                             table_id=T_LOCAL)
     return msg
 
-def match_all(dp):
+
+def flow_default(dp, table, to_table=0):
 
     '''
+    Produces an default rule tha will be matching anything before applying an
+    action and/or switching table.
 
-    An empty match is done or in other words, as soon as the
-
-    switch connects to the controller, it is instructed to match every packet.
-
-    Lowest Priority of 0 should be set for this match.
-    It should be called as soon as a switch connects to a controller.
+    Default behaviour is to send traffic to the controller, but if to_table
+    is provided it will be switch to that table instead.
 
     :param dp: datapath description
     :type dp: `ryu.controller.controller.Datapath`
 
-    :return: mod
-    :type: parser.OFPFlowMod
+    :param table: flow table to install this rule in
+    :type table: int
 
+    :param to_table: flow table to switch traffic to
+    :type to_table: int
+
+    :return: message to send to the switch
+    :type: `parser.OFPFlowMod`
     '''
 
-    match=parser.OFPMatch()
-    actions=[parser.OFPActionOutput(
-        ofproto.OFPP_CONTROLLER, ofproto.OFPCML_NO_BUFFER)]
-    mod=parser.OFPFlowMod(datapath=dp,
-                                priority=0,
-                                match=match, instructions=compose(actions))
-    dp.send_msg(mod)
+    if to_table:
+        actions = []
+    else:
+        actions = [parser.OFPActionOutput(ofp.OFPP_CONTROLLER,
+                                          ofp.OFPCML_NO_BUFFER)]
+
+    match = parser.OFPMatch()
+    msg = parser.OFPFlowMod(datapath=dp,
+                            priority=P_DEFFAULT,
+                            match=match,
+                            instructions=compose(actions, to_table))
+    return msg
 
 
 def flow_install_transit(dp):
