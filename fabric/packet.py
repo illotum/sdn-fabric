@@ -35,9 +35,9 @@ def create_lldp(dpid, port_no=ofp.OFPP_FLOOD):
     eth_pkt = ethernet.ethernet(dst, src, ethertype)
     pkt.add_protocol(eth_pkt)  # Adding Ethernet
     tlvs = (lldp.ChassisID(subtype=lldp.ChassisID.SUB_LOCALLY_ASSIGNED,
-                           chassis_id=str(dpid)),
+                           chassis_id=hex(dpid)),
             lldp.PortID(subtype=lldp.PortID.SUB_INTERFACE_NAME,
-                        port_id=str(port_no)),
+                        port_id=hex(port_no)),
             lldp.TTL(1),
             lldp.End())
     lldp_pkt = lldp.lldp(tlvs)
@@ -76,12 +76,9 @@ def create_arp(dl_src, dl_dst, nl_src, nl_dst):
     return pkt.serialize()
 
 
-def parse_lldp(descr, data):
+def parse_lldp(data, headers={}):
     '''
     Parses LLDP headers and adds them to provided dict
-
-    dpid_dst: Switch who sent(flood) lldp packet
-
 
     :param data: binary of a packet to parse
     :type data: bitearray
@@ -89,19 +86,18 @@ def parse_lldp(descr, data):
     :param headers: parsed headers
     :type headers: dict
 
-    :returns: `headers` with additional entries
-              of "dpid" and "port_no" form LLDP
+    :returns: `headers` with additional entries of "peer_id"
+              and "peer_port" form LLDP
     :rtype: dict
     '''
 
     pkt = packet.Packet(data)
     pkt_lldp = pkt.get_protocol(lldp.lldp)
-    s = str(pkt_lldp.tlvs[0].chassis_id)
-    dpid_dst = struct.unpack("!Q", '\x00\x00' + s)[0]
 
-    descr["dpid_dst"] = dpid_dst
+    headers["peer_id"] = int(pkt_lldp.tlvs[0].chassis_id, 16)
+    headers["peer_port"] = int(pkt_lldp.tlvs[1].port_id, 16)
 
-    return descr
+    return headers
 
 
 def parse_arp(descr, data):
