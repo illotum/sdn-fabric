@@ -94,21 +94,28 @@ def flow_to_remote(dp, dl_dst, dpid):
     :param dp: switch description
     :type dp: `ryu.controller.controller.Datapath`
 
-    :param dl_dst: original destination MAC address
+    :param dl_dst: destination MAC address; any int provided will
+                   be cut to lowest 48 bits
     :type dl_dst: int
 
-    :param dpid: destination switch id to be set as dl_dst after encapsulation
+    :param dpid: destination switch id to be set as dl_dst after encapsulation;
+                 any int provided will be cut to lowest 48 bits
     :type out_port: int
 
     :returns: FlowMod to send to the switch
     :rtype: `parser.OFPFlowMod`
     '''
-    action = [ofp.OFPActionPushPbb(0x88E7), OFPActionSetField(eth_dst=dpid]
-    mod=parser.OFPFlowMod(datapath=dp,
-                                match=parser.OFPmatch(eth_dst=dl_dst),
-                                instruction=compose(
-                                    action, to_table=T_LOCAL),
-                                table_id=1)
+    switch_mac, mac = int_to_mac(dpid), int_to_mac(dl_dst)
+    actions = [
+        ofp.OFPActionPushPbb(0x88E7),
+        OFPActionSetField(eth_dst=switch_mac)
+        ]
+
+    msg = parser.OFPFlowMod(datapath=dp,
+                            match=parser.OFPmatch(eth_dst=mac),
+                            instruction=compose(actions, to_table=T_TRANSIT),
+                            table_id=T_LOCAL)
+    return msg
 
 def match_all(dp):
 
