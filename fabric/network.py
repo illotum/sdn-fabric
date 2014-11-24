@@ -5,8 +5,6 @@ import collections as coll
 import heapq
 from fabric.pqdict import PQDict
 
-Link = coll.namedtuple("Link", "dpid port_no")
-
 
 class Network(object):
 
@@ -56,6 +54,7 @@ class Network(object):
 
     def get_path(src_dpid, dst_dpid):
         # Gets the list of all the paths between core links
+        pass
 
 
 class TopologyDB(dict):
@@ -73,11 +72,11 @@ class TopologyDB(dict):
         returns a list of src,dst=> dpid,port_no
         '''
         neighbourTable = self.neighbour_discovery(lsdb)
-            for i in neighbourTable.keys():
-                for j in neighbourTable.keys():
-                    if i is not j:
-                        self_paths[(i, j)] = self.shortestPath(
-                            neighbourTable, i, j)
+        for i in neighbourTable.keys():
+            for j in neighbourTable.keys():
+                if i is not j:
+                    self_paths[(i, j)] = self.shortestPath(
+                        neighbourTable, i, j)
         return self_paths
 
     def get_all_core(self, lsdb, coreLinks=[]):
