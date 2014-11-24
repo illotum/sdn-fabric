@@ -167,7 +167,7 @@ def flow_to_transit(dp):
     mod = parser.OFPFlowMod(datapath=dp,
                             priority=P_LOW,
                             table_id=T_DEFAULT,
-                            match=parser.OFPmatch(eth_type == 0x88E7),
+                            match=parser.OFPmatch(eth_type=0x88E7),
                             instruction=compose(to_table=T_TRANSIT))
 
     return msg
@@ -185,14 +185,14 @@ def flow_inbound(dp):
     :returns: flow mod message
     :rtype: `parser.OFPFlowMod`
     '''
-    self.ethertype=0x88E7
-    match=parser.OFPmatch(eth_type=0x88E7)
-    action=ofp.OFPActionPopPbb(self.ethertype)
-    mod=parser.OFPFlowMod(datapath=dp,
-                                priority=1,
-                                match,
-                                instruction=compose(action, to_table=T_LOCAL))
-    dp.send_msg(mod)
+    switch_mac = int_to_mac(dp.id)
+    match = parser.OFPmatch(eth_type=0x88E7, eth_dst=switch_mac)
+    actions = [ofp.OFPActionPopPbb()]
+    msg = parser.OFPFlowMod(datapath=dp,
+                            priority=P_HIGH,
+                            match=match,
+                            instruction=compose(actions, to_table=T_LOCAL))
+    return msg
 
 def send_out_packet(dp, pkt, out_port, in_port=ofp.OFPP_CONTROLLER):
     """
