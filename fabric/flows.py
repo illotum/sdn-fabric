@@ -194,7 +194,8 @@ def flow_inbound(dp):
                             instruction=compose(actions, to_table=T_LOCAL))
     return msg
 
-def send_out_packet(dp, pkt, out_port, in_port=ofp.OFPP_CONTROLLER):
+
+def send_packet_out(dp, pkt, out_port, in_port=ofp.OFPP_CONTROLLER):
     """
     Produce a message for a switch to send the provided
     packet out.
@@ -205,13 +206,23 @@ def send_out_packet(dp, pkt, out_port, in_port=ofp.OFPP_CONTROLLER):
     :param pkt: packet contents in serialized format
     :type pkt: `bytearray`
 
-    :returns: packet out message
+    :param out_port: switch port to send packet out of
+    :type out_port: int
+
+    :param in_port: inbount port for packets that were recieved
+                    by this switch; defaults to `ofp.OFPP_CONTROLLER`
+    :type in_port: int
+
+    :returns: message to be sent to switch
     :rtype: `parser.OFPPacketOut`
     """
-    actions=[parser.OFPActionOutput(out_port)]
-
-    msg=parser.OFPPacketOut(
-        datapath=dp, buffer_id=ofp.OFP_NO_BUFFER, in_port=in_port, actions=actions, data=pkt)
+    actions = [parser.OFPActionOutput(out_port)]
+    msg = parser.OFPPacketOut(
+                              datapath=dp,
+                              buffer_id=ofp.OFP_NO_BUFFER,
+                              in_port=in_port,
+                              actions=compose(actions),
+                              data=pkt)
     return msg
 
 def add_flow(self, datapath, in_port, dst, actions):
