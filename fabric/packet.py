@@ -76,15 +76,12 @@ def create_arp(dl_src, dl_dst, nl_src, nl_dst):
     return pkt.serialize()
 
 
-def parse_lldp(data, headers={}):
+def parse_lldp(data):
     '''
     Parse LLDP headers and adds them to provided dict.
 
     :param data: binary of a packet to parse
     :type data: `bytearray`
-
-    :param headers: parsed headers
-    :type headers: dict
 
     :returns: `headers` with additional entries of "peer_id"
               and "peer_port" form LLDP
@@ -94,34 +91,29 @@ def parse_lldp(data, headers={}):
     pkt = packet.Packet(data)
     pkt_lldp = pkt.get_protocol(lldp.lldp)
 
-    headers["peer_id"] = int(pkt_lldp.tlvs[0].chassis_id, 16)
-    headers["peer_port"] = int(pkt_lldp.tlvs[1].port_id, 16)
+    headers = {"peer_id": int(pkt_lldp.tlvs[0].chassis_id, 16),
+               "peer_port": int(pkt_lldp.tlvs[1].port_id, 16)}
 
     return headers
 
 
-def parse_arp(data, headers={}):
+def parse_arp(data):
     '''
     Parse ARP headers and add them to provided dict.
 
     :param data: binary of a packet to parse
     :type data: `bytearray`
 
-    :param headers: parsed headers
-    :type headers: dict
-
-    :returns: `headers` with additional entries of "opcode", "nl_src"
-              and "nl_dst" form ARP.
-              Entries from the Ethernet frame, "dl_src" and "dl_dst",
-              are NOT overwritten.
+    :returns: `headers` with entries of "opcode", "nl_src" and "nl_dst"
+              from ARP.
     :rtype: dict
     '''
     pkt = packet.Packet(data)
     pkt_arp = pkt.get_protocol(arp.arp)
 
-    headers["nl_src"] = pkt_arp.src_ip
-    headers["nl_dst"] = pkt_arp.dst_ip
-    headers["opcode"] = pkt_arp.opcode
+    headers = {"nl_src": pkt_arp.src_ip,
+               "nl_dst": pkt_arp.dst_ip,
+               "opcode": pkt_arp.opcode}
 
     return headers
 
@@ -135,25 +127,19 @@ def parse(data):
     :type data: `bytearray`
 
     :returns: dictionary of all important headers parsed
-              with "dl_src" and "dl_dst" at minimum;
+              with "dl_src" and "dl_dst" and "ethertype" at minimum;
     :rtype: dict
     '''
-    descr = {"dpid_src": '', "port_src": '', "dl_src": '', "dl_dst": '',
-             "nl_src": '', "nl_dst": '', "dpid_dst": '', "opcode": '', "ethertype": ''}
-    descr["dpid_src"] = dpid_src
-    descr["port_src"] = port_src
-
     pkt = packet.Packet(data)
     pkt_eth = pkt.get_protocol(ethernet.ethernet)
 
-    descr["dl_src"] = pkt_eth.src
-    descr["dl_dst"] = pkt_eth.dst
-    descr["ethertype"] = pkt_eth.ethertype
+    headers = {"dl_src": pkt_eth.src,
+               "dl_dst": pkt_eth.dst,
+               "ethertype": pkt_eth.ethertype}
 
-    if descr["ethertype"] == 2054:            # If packet is ARP
-        descr = parse_arp(descr, data)
+    if headers["ethertype"] == ethertypes.ETH_TYPE_ARP:
+        headers += parse_arp(data)
+    elif headers["ethertype"] == ethertypes.ETH_TYPE_ARP:
+        headers += parse_lldp(data)
 
-    elif descr["ethertype"] == 35020:       # If packet is LLDP
-        descr = parse_lldp(descr, data)
-
-    return descr
+    return headers
