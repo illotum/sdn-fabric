@@ -3,14 +3,11 @@ This module contains pure functions to parse and craft packets.
 """
 
 from ryu.ofproto import ofproto_v1_4 as ofp
-from ryu.ofproto import ofproto_v1_4_parser as parser
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import arp
 from ryu.lib.packet import lldp
 from ryu.ofproto import ether as ethertypes
-from ryu.lib.mac import haddr_to_bin
-import struct
 import fabric.flows as fl
 
 
