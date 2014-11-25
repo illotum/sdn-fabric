@@ -59,7 +59,7 @@ class TopologyGraph(defaultdict):
     """
 
     def __init__(self, *args, **kwargs):
-        self.dpids = set()
+        self.switches = set()
         super(TopologyGraph, self).__init__(*args, **kwargs)
 
     @property
@@ -71,16 +71,6 @@ class TopologyGraph(defaultdict):
         :rtype: list of (peerA, peerB)
         """
         return self.keys()
-
-    @property
-    def switches(self):
-        """
-        Return a list of all switches in the topology.
-
-        :returns: a coll of dpids
-        :rtype: set of int
-        """
-        return self.dpids
 
     def run_spf(self):
         lst = [(a, b) for a in self.switches for b in self.switches if a != b]
