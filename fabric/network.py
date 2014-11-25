@@ -35,19 +35,38 @@ class Network(object):
         :param mac: MAC for a lookup
         :type mac: str
 
-        :returns: dpid and port number
+        :returns: dpid and port number or None
         :rtype: (int, int)
         """
         return self.mac_to_port[mac]
 
-    def parse_ports(ports):
-        pass
+    def new_peer(self, dpid, peer, port_no):
+        """
+        Store new peering information
 
-    def new_peer():
-        pass
+        :param dpid: datapath id of the reporting switch
+        :type dpid: int
 
-    def get_path(src_dpid, dst_dpid):
-        # Gets the list of all the paths between core links
+        :param peer: datapath id of the peer
+        :type peer: int
+
+        :param port_no: recieving port number
+        :type port_no: int
+        """
+        self.topo[dpid, peer] = port_no
+        self.topo.run_spf()
+
+    def purge(self, dpid, port_no=None):
+        """
+        Cleanse all state from the given dpid or (dpid, port_no)
+
+        :param dpid: datapath id to remove from all tables
+        :type dpid: int
+
+        :param port_no: port number to narrow down the cleanse;
+                        all ports will be removed if not given
+        :type port_no: int
+        """
         pass
 
 
