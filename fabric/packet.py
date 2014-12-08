@@ -35,7 +35,7 @@ def create_lldp(dpid, port_no=ofp.OFPP_FLOOD):
                            chassis_id=hex(dpid)),
             lldp.PortID(subtype=lldp.PortID.SUB_INTERFACE_NAME,
                         port_id=hex(port_no)),
-            lldp.TTL(1),
+            lldp.TTL(ttl=1),
             lldp.End())
     lldp_pkt = lldp.lldp(tlvs)
     pkt.add_protocol(lldp_pkt)  # Adding llDP

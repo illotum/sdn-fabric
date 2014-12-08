@@ -6,13 +6,17 @@ No to switch communication is supposed to reside in here.
 
 from ryu.ofproto import ofproto_v1_4 as ofp
 from ryu.ofproto import ofproto_v1_4_parser as parser
-from ryu.lib import addrconv
+import netaddr
 T_DEFAULT = 0
 T_TRANSIT = 1
 T_LOCAL = 2
 P_DEFAULT = 0
 P_LOW = 10
 P_HIGH = 20
+
+
+class _ryu_dialect(netaddr.mac_unix):
+    word_fmt = '%.2x'
 
 
 def compose(actions=[], to_table=0):
@@ -51,7 +55,7 @@ def int_to_mac(dpid):
     :rtype: str
     """
     mac_addr = dpid & (2 ** 48 - 1)
-    return addrconv.mac.bin_to_text(mac_addr)
+    return str(netaddr.EUI(mac_addr, version=48, dialect=_ryu_dialect))
 
 
 def flow_to_port(dp, dl_dst, out_port, table=T_LOCAL):
