@@ -67,7 +67,7 @@ class Network(object):
                         all ports will be removed if not given
         :type port_no: int
         """
-        pass
+        print("PURGE OF " + str(dpid))
 
 
 class TopologyGraph(defaultdict):

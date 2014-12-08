@@ -8,7 +8,7 @@ from ryu.lib.packet import ethernet
 from ryu.lib.packet import arp
 from ryu.lib.packet import lldp
 from ryu.ofproto import ether as ethertypes
-import fabric.flows as fl
+import fabric.flows as flows
 
 
 def create_lldp(dpid, port_no=ofp.OFPP_FLOOD):
@@ -26,8 +26,8 @@ def create_lldp(dpid, port_no=ofp.OFPP_FLOOD):
     '''
 
     pkt = packet.Packet()  # creating empty pkt
-    dst, src = lldp.LLDP_MAC_NEAREST_BRIDGE  # Singlehop LLDP multicast
-    src = fl.int_to_mac(dpid)
+    dst = lldp.LLDP_MAC_NEAREST_BRIDGE  # Singlehop LLDP multicast
+    src = flows.int_to_mac(dpid)
     ethertype = ethertypes.ETH_TYPE_LLDP
     eth_pkt = ethernet.ethernet(dst, src, ethertype)
     pkt.add_protocol(eth_pkt)  # Adding Ethernet
