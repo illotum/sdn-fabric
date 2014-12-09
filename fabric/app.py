@@ -53,6 +53,7 @@ class NetworkManager(app_manager.RyuApp):
             dp.send_msg(flows.flow_default(dp, flows.T_DEFAULT, flows.T_LOCAL))
             dp.send_msg(flows.flow_default(dp, flows.T_LOCAL))
             self.run_discovery(dp)
+            self.net.add_switch(dp.id)
         elif ev.state == DEAD_DISPATCHER:
             self.net.purge(dp.id)
 

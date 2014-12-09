@@ -54,15 +54,23 @@ class Network(object):
         :type port_no: int
         """
         self.topo[dpid, peer] = port_no
-        print(self.topo)
         self.topo.run_spf()
+
+    def add_switch(self, dpid):
+        """
+        Store new switch id.
+
+        :param dpid: datapath id of the reporting switch
+        :type dpid: int
+        """
+        self.topo.switches.add(dpid)
 
     def udl(self, dpid, peer):
         """
         Check if discovered link is unidirectional
         """
         assert self.topo[dpid, peer] is not None
-        if self.topo[peer, dpid] :
+        if self.topo[peer, dpid]:
             return False
         else:
             return True
@@ -96,6 +104,9 @@ class Network(object):
                 if not port_no or table_port_no == port_no:
                     del self.topo[key]
 
+        if not port_no:
+            self.topo.switches.pop(dpid)
+
 
 class TopologyGraph(defaultdict):
     """
@@ -120,9 +131,10 @@ class TopologyGraph(defaultdict):
 
     def run_spf(self):
         lst = [(a, b) for a in self.switches for b in self.switches if a != b]
-        self.paths = defaultdict
+        self.paths = defaultdict(lambda: None)
         for src, dst in lst:
             self.paths[src, dst] = self.dijkstra(src, dst)
+        print(self.paths)
 
     def dijkstra(self, src, dst):
         """
