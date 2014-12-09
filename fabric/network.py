@@ -40,7 +40,7 @@ class Network(object):
         """
         return self.mac_to_port[mac]
 
-    def new_peer(self, dpid, peer, port_no):
+    def add_peer(self, dpid, peer, port_no):
         """
         Store new peering information
 
@@ -54,6 +54,7 @@ class Network(object):
         :type port_no: int
         """
         self.topo[dpid, peer] = port_no
+        print(self.topo)
         self.topo.run_spf()
 
     def purge(self, dpid, port_no=None):
@@ -67,7 +68,23 @@ class Network(object):
                         all ports will be removed if not given
         :type port_no: int
         """
-        print("PURGE OF " + str(dpid))
+        purge_macs = []
+        for mac, item in self.mac_to_port.items():
+            table_dpid, table_port_no = item
+            if table_dpid == dpid:
+                if not port_no or table_port_no == port_no:
+                    purge_macs.add(mac)
+                    del self.mac_to_port[mac]
+
+        for ip, mac in self.ip_to_mac.items():
+            if mac in purge_macs:
+                del self.ip_to_mac[ip]
+
+        for key, table_port_no in self.topo.items():
+            table_sdpid, table_ddpid = key
+            if table_sdpid == dpid or table_ddpid == dpid:
+                if not port_no or table_port_no == port_no:
+                    del self.topo[key]
 
 
 class TopologyGraph(defaultdict):

@@ -39,7 +39,8 @@ def create_lldp(dpid, port_no=ofp.OFPP_FLOOD):
             lldp.End())
     lldp_pkt = lldp.lldp(tlvs)
     pkt.add_protocol(lldp_pkt)  # Adding llDP
-    return pkt.serialize()
+    pkt.serialize()
+    return pkt.data
 
 
 def create_arp(dl_src, dl_dst, nl_src, nl_dst):
@@ -135,8 +136,8 @@ def parse(data):
                "ethertype": pkt_eth.ethertype}
 
     if headers["ethertype"] == ethertypes.ETH_TYPE_ARP:
-        headers += parse_arp(data)
-    elif headers["ethertype"] == ethertypes.ETH_TYPE_ARP:
-        headers += parse_lldp(data)
+        headers.update(parse_arp(data))
+    elif headers["ethertype"] == ethertypes.ETH_TYPE_LLDP:
+        headers.update(parse_lldp(data))
 
     return headers

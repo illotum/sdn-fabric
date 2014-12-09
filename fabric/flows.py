@@ -6,6 +6,7 @@ No to switch communication is supposed to reside in here.
 
 from ryu.ofproto import ofproto_v1_4 as ofp
 from ryu.ofproto import ofproto_v1_4_parser as parser
+from ryu.lib.ofctl_v1_3 import actions_to_str
 import netaddr
 T_DEFAULT = 0
 T_TRANSIT = 1
@@ -40,7 +41,6 @@ def compose(actions=[], to_table=0):
                                          actions))
     if to_table:
         inst.append(parser.OFPInstructionGotoTable(to_table))
-
     return inst
 
 
@@ -86,7 +86,7 @@ def flow_to_port(dp, dl_dst, out_port, table=T_LOCAL):
     msg = parser.OFPFlowMod(datapath=dp,
                             priority=P_LOW,
                             match=parser.OFPmatch(eth_dst=dl_dst),
-                            instruction=inst,
+                            instructions=inst,
                             table_id=table)
 
     return msg
@@ -117,7 +117,7 @@ def flow_to_remote(dp, dl_dst, dpid):
 
     msg = parser.OFPFlowMod(datapath=dp,
                             match=parser.OFPmatch(eth_dst=dl_dst),
-                            instruction=compose(actions, to_table=T_TRANSIT),
+                            instructions=compose(actions, to_table=T_TRANSIT),
                             table_id=T_LOCAL)
     return msg
 
@@ -152,6 +152,7 @@ def flow_default(dp, table, to_table=0):
     match = parser.OFPMatch()
     msg = parser.OFPFlowMod(datapath=dp,
                             priority=P_DEFAULT,
+                            table_id=table,
                             match=match,
                             instructions=compose(actions, to_table))
     return msg
@@ -168,8 +169,8 @@ def flow_to_transit(dp):
     msg = parser.OFPFlowMod(datapath=dp,
                             priority=P_LOW,
                             table_id=T_DEFAULT,
-                            match=parser.OFPmatch(eth_type=0x88E7),
-                            instruction=compose(to_table=T_TRANSIT))
+                            match=parser.OFPMatch(eth_type=0x88E7),
+                            instructions=compose(to_table=T_TRANSIT))
 
     return msg
 
@@ -187,12 +188,13 @@ def flow_inbound(dp):
     :rtype: `parser.OFPFlowMod`
     '''
     switch_mac = int_to_mac(dp.id)
-    match = parser.OFPmatch(eth_type=0x88E7, eth_dst=switch_mac)
-    actions = [ofp.OFPActionPopPbb()]
+    match = parser.OFPMatch(eth_type=0x88E7, eth_dst=switch_mac)
+    actions = [parser.OFPActionPopPbb()]
     msg = parser.OFPFlowMod(datapath=dp,
                             priority=P_HIGH,
+                            table_id=T_DEFAULT,
                             match=match,
-                            instruction=compose(actions, to_table=T_LOCAL))
+                            instructions=compose(actions, to_table=T_LOCAL))
     return msg
 
 
@@ -221,6 +223,6 @@ def send_packet_out(dp, pkt, out_port, in_port=ofp.OFPP_CONTROLLER):
     msg = parser.OFPPacketOut(datapath=dp,
                               buffer_id=ofp.OFP_NO_BUFFER,
                               in_port=in_port,
-                              actions=compose(actions),
+                              actions=actions,
                               data=pkt)
     return msg

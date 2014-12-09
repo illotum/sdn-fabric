@@ -8,6 +8,7 @@ from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER, DEAD_DISP
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_4 as ofp
 from ryu.ofproto import ofproto_v1_4_parser as parser
+from ryu.ofproto import ether as ethertypes
 
 from fabric.network import Network
 import fabric.packet as packet
@@ -21,6 +22,7 @@ HIGH_PRI = 2
 
 
 class NetworkManager(app_manager.RyuApp):
+    OFP_VERSIONS = [ofp.OFP_VERSION]
 
     """
     Core class of this package, NetworkManager is a top-level Ryu application
@@ -43,12 +45,17 @@ class NetworkManager(app_manager.RyuApp):
                   where datapath can be None if negotiation didn't
                   end successfully.
         """
-        datapath = ev.datapath
-        assert datapath is not None
+        dp = ev.datapath
+        assert dp is not None
         if ev.state == MAIN_DISPATCHER:
-            self.run_discovery(datapath)
+            dp.send_msg(flows.flow_inbound(dp))
+            dp.send_msg(flows.flow_to_transit(dp))
+            dp.send_msg(flows.flow_default(dp, flows.T_DEFAULT, flows.T_LOCAL))
+            dp.send_msg(flows.flow_default(dp, flows.T_LOCAL))
+            # dp.send_msg(flows.flow_default(dp, flows.T_DEFAULT))
+            self.run_discovery(dp)
         elif ev.state == DEAD_DISPATCHER:
-            self.net.purge(datapath.id)
+            self.net.purge(dp.id)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _handle_packet_in(self, ev):
@@ -60,11 +67,19 @@ class NetworkManager(app_manager.RyuApp):
         :type ev: `ofp_event.EventOFPPacketIn`
         """
         msg = ev.msg
-        datapath = msg.datapath
+        dp = msg.datapath
         in_port = msg.match['in_port']
-        # calls parse function and stores packet data in descr
-        descr = packet.parse(msg.data, datapath.id, in_port)
-        print("PACKET IN FROM " + ev.msg.datapath.id)
+        print("PACKET IN FROM " + str(dp.id))
+
+        headers = packet.parse(msg.data)
+        if headers["ethertype"] == ethertypes.ETH_TYPE_LLDP:
+            print("LLDP IN FROM " + str(dp.id))
+            self.topo.add_peer(dp.id,
+                               headers["peer_id"],
+                               in_port)
+        elif (headers["ethertype"] == ethertypes.ETH_TYPE_ARP and
+              headers["opcode"] == 1):
+            pass
 
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)
     def _handle_port_status(self, ev):
@@ -104,14 +119,20 @@ class NetworkManager(app_manager.RyuApp):
 
         flows.send_out_packet(dp, pkt, out_port)
 
-    def run_discovery(self, datapath):
+    def run_discovery(self, dp):
         """
         Sends LLDP broadcast from a given switch
 
         :param datapath: datapath object that corresponds to originating switch
         :type datapath: `ryu.controller.controller.Datapath`
         """
-        print("DISCOVERY FOR " + str(datapath.id))
-        pkt_lldp = packet.create_lldp(datapath.id)
-        msg = flows.send_packet_out(datapath, pkt_lldp, ofp.OFPP_FLOOD)
-        datapath.send_msg(msg)
+        ofp = dp.ofproto
+        parser = dp.ofproto_parser
+        pkt_lldp = packet.create_lldp(dp.id)
+        actions = [parser.OFPActionOutput(ofp.OFPP_FLOOD)]
+        msg = parser.OFPPacketOut(datapath=dp,
+                                  buffer_id=ofp.OFP_NO_BUFFER,
+                                  in_port=ofp.OFPP_CONTROLLER,
+                                  actions=actions,
+                                  data=pkt_lldp)
+        dp.send_msg(msg)
