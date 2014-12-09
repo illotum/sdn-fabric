@@ -12,9 +12,9 @@ class Network(object):
     """
 
     def __init__(self):
-        self.topo = TopologyGraph()  # (src_dpid, dst_dpid) => port_no
-        self.ip_to_mac = defaultdict()  # IP => MAC
-        self.mac_to_port = defaultdict()  # MAC => (dpid,port_no)
+        self.topo = TopologyGraph(lambda: None)  # (src_dpid, dst_dpid) => port_no
+        self.ip_to_mac = defaultdict(lambda: None)  # IP => MAC
+        self.mac_to_port = defaultdict(lambda: None)  # MAC => (dpid,port_no)
 
     def mac_of_ip(self, ip):
         """
@@ -56,6 +56,16 @@ class Network(object):
         self.topo[dpid, peer] = port_no
         print(self.topo)
         self.topo.run_spf()
+
+    def udl(self, dpid, peer):
+        """
+        Check if discovered link is unidirectional
+        """
+        assert self.topo[dpid, peer] is not None
+        if self.topo[peer, dpid] :
+            return False
+        else:
+            return True
 
     def purge(self, dpid, port_no=None):
         """

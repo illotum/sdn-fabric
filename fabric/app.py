@@ -52,7 +52,6 @@ class NetworkManager(app_manager.RyuApp):
             dp.send_msg(flows.flow_to_transit(dp))
             dp.send_msg(flows.flow_default(dp, flows.T_DEFAULT, flows.T_LOCAL))
             dp.send_msg(flows.flow_default(dp, flows.T_LOCAL))
-            # dp.send_msg(flows.flow_default(dp, flows.T_DEFAULT))
             self.run_discovery(dp)
         elif ev.state == DEAD_DISPATCHER:
             self.net.purge(dp.id)
@@ -69,14 +68,12 @@ class NetworkManager(app_manager.RyuApp):
         msg = ev.msg
         dp = msg.datapath
         in_port = msg.match['in_port']
-        print("PACKET IN FROM " + str(dp.id))
 
         headers = packet.parse(msg.data)
         if headers["ethertype"] == ethertypes.ETH_TYPE_LLDP:
-            print("LLDP IN FROM " + str(dp.id))
-            self.topo.add_peer(dp.id,
-                               headers["peer_id"],
-                               in_port)
+            self.net.add_peer(dp.id, headers["peer_id"], in_port)
+            if self.net.udl(dp.id, headers["peer_id"]):
+                self.run_discovery(dp)
         elif (headers["ethertype"] == ethertypes.ETH_TYPE_ARP and
               headers["opcode"] == 1):
             pass
@@ -126,13 +123,6 @@ class NetworkManager(app_manager.RyuApp):
         :param datapath: datapath object that corresponds to originating switch
         :type datapath: `ryu.controller.controller.Datapath`
         """
-        ofp = dp.ofproto
-        parser = dp.ofproto_parser
         pkt_lldp = packet.create_lldp(dp.id)
-        actions = [parser.OFPActionOutput(ofp.OFPP_FLOOD)]
-        msg = parser.OFPPacketOut(datapath=dp,
-                                  buffer_id=ofp.OFP_NO_BUFFER,
-                                  in_port=ofp.OFPP_CONTROLLER,
-                                  actions=actions,
-                                  data=pkt_lldp)
+        msg = flows.send_packet_out(dp, pkt_lldp, ofp.OFPP_FLOOD)
         dp.send_msg(msg)
